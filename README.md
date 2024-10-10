@@ -13,3 +13,49 @@ spread [-l y/n] [-n proc_name] [-c config_file]
 - `-c config-file` Use an alternate configuration file config-file instead of ./spread.conf.
 
 <b>Note: </b> enabling logging made the server Exit caused by Alarm(EXIT) on my machine.
+
+### About the spread library
+It consists of 12 classes. The imporant ones are:
+1. SpreadConnection – represents a connection to the spread daemon
+2. SpreadGroup – represents the spread group
+3. SpreadMessage – represents message that is either sent or received
+
+### Connection:
+```
+SpreadConnection connection = new SpreadConnection();
+connection.connect(<ip address>, <port number>, <connection name>, 
+                    <priority>, <group membership>);
+```
+<b>Parameters:</b>
+- `ip address` – ip address of the host that runs the spread server
+- `port number` – port number of the spread server
+- `connection name` - unique connection name. unique per client
+- `priority` – boolean value to determine whether it’s a priority connection or not. it  doesn’t have any effect.
+- `group membership` – denotes whether the group membership messages are received or not. set it to true.
+
+### Spread group:
+```
+SpreadGroup group = new SpreadGroup();
+group.join(connection, <group name>);
+```
+<b>Parameters:</b>
+- `group name` – name of the group
+
+### Spread message:
+```
+SpreadMessage message = new SpreadMessage();
+message.addGroup(group);
+message.setFifo();
+message.setObject(<message data>);
+connection.multicast(message);
+```
+### Listener:
+Group members can receive message using the listener. Spread provides two types of interfaces: 
+BasicListener and AdvancedListener. 
+
+To use the listener, the interface should be 
+implemented and the corresponding class object should be added with the connection.
+```
+Listener listener = new Listener();
+connection.add(listener);
+```
