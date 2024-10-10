@@ -5,14 +5,14 @@
 [Assignment link](https://www.uio.no/studier/emner/matnat/ifi/IN5020/h24/timeplan/in5020_2024_assignment2.pdf)
 
 <b>Todo:</b>
-- [ ] Filereader - Caroline
+- [ ] File reader - Caroline
 - [ ] Client connects to spread server using listener - Caroline
 - [ ] Client should join a group whose name is `<account name>` - Caroline
 - [ ] Client should wait until all members have joined the group - Caroline
 - [ ] Implement file reader - Caroline
 - [ ] getQuickBalance - Liang
-- [ ] getSyncedBalance (naive implementation)
-- [ ] getSyncedBalance (correct implementation)
+- [ ] getSyncedBalance (naive implementation) - TBD
+- [ ] getSyncedBalance (correct implementation) - TBD
 - [ ] deposit <amount> - Liang
 - [ ] addInterest <percent> - Liang
 - [ ] getHistory - Liang
