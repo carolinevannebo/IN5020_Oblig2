@@ -1,3 +1,5 @@
+[Assignment link](https://www.uio.no/studier/emner/matnat/ifi/IN5020/h24/timeplan/in5020_2024_assignment2.pdf)
+
 ### How to run spread server
 1. Navigate to `spread-src-4.0.0/`
 2. Run `./daemon/spread -n localhost -c ../spread.conf`
