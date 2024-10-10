@@ -1,4 +1,33 @@
+# Replicated Bank Account
+## The Second Mandatory Programming Assignment
+### IN5020/IN9020 Autumn 2024
+
 [Assignment link](https://www.uio.no/studier/emner/matnat/ifi/IN5020/h24/timeplan/in5020_2024_assignment2.pdf)
+
+<b>Todo:</b>
+- [ ] Filereader - Caroline
+- [ ] Client connects to spread server using listener - Caroline
+- [ ] Client should join a group whose name is `<account name>` - Caroline
+- [ ] Client should wait until all members have joined the group - Caroline
+- [ ] Implement file reader - Caroline
+- [ ] getQuickBalance - Liang
+- [ ] getSyncedBalance (naive implementation)
+- [ ] getSyncedBalance (correct implementation)
+- [ ] deposit <amount> - Liang
+- [ ] addInterest <percent> - Liang
+- [ ] getHistory - Liang
+- [ ] checkTxStatus <Transaction.unique_id> - Caroline
+- [ ] cleanHistory - Caroline
+- [ ] memberInfo - Caroline
+- [ ] sleep <duration> - Liang
+- [ ] exit - Liang
+- [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
+  not fail go through the same sequence of changes and end up with the same balance value)
+
+<b>Note1:</b> balance of the account can be negative.
+<b>Note2:</b> no need to consider the happened-before relationship of every single command
+between clients. Only consider the consistent view.
+
 
 ### How to run spread server
 1. Navigate to `spread-src-4.0.0/`
