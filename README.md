@@ -6,7 +6,7 @@
 
 <b>Todo:</b>
 - [x] Client connects to spread server using listener - Caroline
-- [ ] Client should join a group whose name is `<account name>` - Caroline
+- [x] Client should join a group whose name is `<account name>` - Caroline
 - [ ] Client should wait until all members have joined the group - Caroline
 - [ ] File reader - Caroline
 - [ ] Implement file reader - Caroline
@@ -46,7 +46,7 @@ spread [-l y/n] [-n proc_name] [-c config_file]
 <b>Note: </b> enabling logging made the server Exit caused by Alarm(EXIT) on my machine.
 
 ### About the spread library
-It consists of 12 classes. The imporant ones are:
+It consists of 12 classes. The important ones are:
 1. SpreadConnection – represents a connection to the spread daemon
 2. SpreadGroup – represents the spread group
 3. SpreadMessage – represents message that is either sent or received
