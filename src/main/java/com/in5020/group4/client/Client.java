@@ -61,7 +61,6 @@ public class Client implements ClientInterface {
             System.out.println("Waiting for replicas to join");
             listener.waitForAllReplicas();
             System.out.println("All replicas joined");
-
         } catch (SpreadException | UnknownHostException | InterruptedException e) {
             throw new RuntimeException(e);
         }

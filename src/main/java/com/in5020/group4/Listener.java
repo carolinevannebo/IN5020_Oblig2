@@ -23,12 +23,15 @@ public class Listener implements AdvancedMessageListener {
     @Override
     public synchronized void membershipMessageReceived(SpreadMessage spreadMessage) {
         MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
-        int currentMembers = membershipInfo.getMembers().length;
-        System.out.println("Current members in group: " + currentMembers);
+        //membershipInfo.isCausedByJoin(); todo: check out this
+        if (membershipInfo.isCausedByJoin()) {
+            int currentMembers = membershipInfo.getMembers().length;
+            System.out.println("Current members in group: " + currentMembers);
 
-        if (currentMembers == numberOfReplicas) {
-            allReplicasJoined = true;
-            notifyAll();
+            if (currentMembers == numberOfReplicas) {
+                allReplicasJoined = true;
+                notifyAll();
+            }
         }
     }
 
