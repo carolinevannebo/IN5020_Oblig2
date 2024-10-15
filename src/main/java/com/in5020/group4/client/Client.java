@@ -128,27 +128,15 @@ public class Client {
         this.orderCounter.incrementAndGet();
     }
 
-    public void getHistory() throws Exception {
-
-    }
 
     public String checkTxStatus(int transactionId) throws Exception {
         return "";
     }
 
-    public void cleanHistory() throws Exception {
-
-    }
 
     public List<String> memberInfo() throws Exception {
         return List.of();
     }
 
-    public void sleep(int duration) throws Exception {
 
-    }
-
-    public void exit() throws Exception {
-
-    }
 }
