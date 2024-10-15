@@ -22,7 +22,7 @@ public class Listener implements AdvancedMessageListener {
         } catch (SpreadException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(msg);
+        print(msg);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class Listener implements AdvancedMessageListener {
         String msg = null;
         try {
             msg = (String) spreadMessage.getObject();
-            print("Received message '" + msg + "'");
+            print("Received replica '" + msg + "'");
             messages.add(msg);
         } catch (SpreadException e) {
             throw new RuntimeException(e);

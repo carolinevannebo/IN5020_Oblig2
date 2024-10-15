@@ -18,6 +18,8 @@ import static java.lang.Thread.sleep;
  */
 
 public class Main {
+    private static final AtomicInteger outstandingCounter = new AtomicInteger(0);
+    private static AtomicInteger orderCounter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException {
         String serverAddress = "127.0.0.1";
@@ -25,6 +27,7 @@ public class Main {
         int numberOfReplicas = 3;
 
         Listener listener = new Listener(numberOfReplicas);
+        List<String> queries = TxtFileReader.getQueries();
         for (int i = 1; i <= numberOfReplicas; i++) {
             int finalI = i;
             new Thread(() -> {
@@ -32,8 +35,8 @@ public class Main {
                     Client client = new Client(serverAddress, accountName, listener, finalI);
                     client.connect();
 
-                    List<String> testingQueries = TxtFileReader.getQueries();
-                    for (String query : testingQueries) { // todo: each client should not run the whole file by itself
+                    for (String query : queries) {
+                        //todo: if input matches client id
                         runInput(client, query);
                     }
                 } catch (InterruptedException e) {
@@ -46,9 +49,9 @@ public class Main {
 
     private static void runInput(Client client, String input) throws InterruptedException {
         /// I think the input file will give us a client ID, meaning we should not pass a client params, but an ID, to establish which client to use
-        System.out.println("\nInput:" + input);
+        client.print("\nInput:" + input);
         if (input.equalsIgnoreCase("getQuickBalance")) {
-            System.out.println("Quick Balance: " + client.getQuickBalance());
+            client.print("Quick Balance: " + client.getQuickBalance());
 
         } else if (input.equalsIgnoreCase("getSyncedBalance")) {
             Transaction transaction = new Transaction();
@@ -66,6 +69,9 @@ public class Main {
             client.deposit(transaction, amount);
             client.addOutStandingCollection(transaction);
 
+            orderCounter.incrementAndGet();
+            outstandingCounter.incrementAndGet();
+
         } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
             String[] args = input.split(" ");
             int percent = Integer.parseInt(args[1]);
@@ -75,37 +81,40 @@ public class Main {
             client.addInterest(transaction, percent);
             client.addOutStandingCollection(transaction);
 
-        } else if (input.equalsIgnoreCase("getHistory")) {
-            System.out.println("\nExecuted List:");
-            for (Transaction transaction : client.getExecutedList()) {
-                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
-            }
+            orderCounter.incrementAndGet();
+            outstandingCounter.incrementAndGet();
 
-            System.out.println("\nOutstanding collection:");
-            for (Transaction transaction : client.getOutstandingCollection()) {
-                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
+        } else if (input.equalsIgnoreCase("getHistory")) {
+            client.getHistory();
+            /*client.print("\nExecuted List:");
+            for (Transaction transaction : client.getExecutedList()) {
+                client.print(transaction.getUniqueId() + ":" + transaction.getCommand());
             }
+            client.print("\nOutstanding collection:");
+            for (Transaction transaction : client.getOutstandingCollection()) {
+                client.print(transaction.getUniqueId() + ":" + transaction.getCommand());
+            }*/
 
         } else if (input.matches("checkTxStatus <.*>")) {
-            System.out.println("\nCheck Tx Status");
+            client.print("\nCheck Tx Status");
 
         } else if (input.equalsIgnoreCase("cleanHistory")) {
-            System.out.println("Executing clean history");
-            client.setExecutedList(new ArrayList<>());
-            client.setOrderCounter(new AtomicInteger(0));
+            client.print("Executing clean history");
+            //client.setExecutedList(new ArrayList<>());
+            //client.setOrderCounter(new AtomicInteger(0));
 
         } else if (input.equalsIgnoreCase("memberInfo")) {
-            System.out.println("\nMember Info");
+            client.print("\nMember Info");
 
         } else if (input.matches("sleep \\d+")) {
             String[] args = input.split(" ");
             int time = Integer.parseInt(args[1]);
-            System.out.println("\nSleep: " + time + " seconds");
+            client.print("Sleep: " + time + " seconds");
             sleep(time);
 
         } else if (input.equalsIgnoreCase("exit")) {
-            System.out.println("\n" + input);
-            System.exit(0);
+            client.exit();
+            //System.exit(0);
         }
     }
 }
