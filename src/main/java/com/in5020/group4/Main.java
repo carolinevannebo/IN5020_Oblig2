@@ -37,21 +37,43 @@ public class Main {
 
         } else if (input.equalsIgnoreCase("getSyncedBalance")) {
             System.out.println("\n" + input);
+            Transaction transaction = new Transaction();
+            transaction.setCommand(input);
+            transaction.setUniqueId(input);
+            client.getSyncedBalance(transaction);
+            client.addOutStandingCollection(transaction);
 
         } else if (input.matches("deposit \\d+(\\.\\d+)?")) {
             System.out.println("\n" + input);
             String[] args = input.split(" ");
             int amount = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
+            transaction.setCommand(input);
+            transaction.setUniqueId(input);
+            client.deposit(transaction, amount);
+            client.addOutStandingCollection(transaction);
 
         } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
             System.out.println("\n" + input);
             String[] args = input.split(" ");
             int percent = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
+            transaction.setCommand(input);
+            transaction.setUniqueId(input);
+            client.addInterest(transaction, percent);
+            client.addOutStandingCollection(transaction);
 
         } else if (input.equalsIgnoreCase("getHistory")) {
             System.out.println("\n" + input);
+            System.out.println("\nExecuted List:");
+            for (Transaction transaction : client.getExecutedList()) {
+                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
+            }
+
+            System.out.println("\nOutstanding collection:");
+            for (Transaction transaction : client.getOutstandingCollection()) {
+                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
+            }
 
         } else if (input.matches("checkTxStatus <.*>")) {
             System.out.println("\n" + input);
