@@ -3,7 +3,14 @@ package com.in5020.group4;
 import spread.*;
 
 public class Listener implements AdvancedMessageListener {
-    public void regularMessageReceived(SpreadMessage message) {
+    private final int numberOfReplicas;
+    public boolean allReplicasJoined = false;
+
+    public Listener(int numberOfReplicas) {
+        this.numberOfReplicas = numberOfReplicas;
+    }
+
+    public synchronized void regularMessageReceived(SpreadMessage message) {
         String msg = null;
         try {
             msg = (String) message.getObject();
@@ -14,8 +21,23 @@ public class Listener implements AdvancedMessageListener {
     }
 
     @Override
-    public void membershipMessageReceived(SpreadMessage spreadMessage) {
-        System.out.println(spreadMessage.getMembershipInfo().getMembers());
+    public synchronized void membershipMessageReceived(SpreadMessage spreadMessage) {
+        MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
+        //membershipInfo.isCausedByJoin(); todo: check out this
+        if (membershipInfo.isCausedByJoin()) {
+            int currentMembers = membershipInfo.getMembers().length;
+            System.out.println("Current members in group: " + currentMembers);
+
+            if (currentMembers == numberOfReplicas) {
+                allReplicasJoined = true;
+                notifyAll();
+            }
+        }
     }
 
+    public synchronized void waitForAllReplicas() throws InterruptedException {
+        while (!allReplicasJoined) {
+            wait();
+        }
+    }
 }
