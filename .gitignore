@@ -1,3 +1,4 @@
 /.idea/
 /.vscode/
 src/.DS_Store src/main/.DS_Store
+/target/classes/com/in5020/group4/client/Client.class
