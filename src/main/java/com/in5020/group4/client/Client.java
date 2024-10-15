@@ -15,10 +15,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Client implements ClientInterface {
+public class Client {
     public String serverAddress;
     public String accountName;
     public int numberOfReplicas;
+    public double balance;
     public List<Transaction> executedList = new ArrayList<>();
     public Collection<Transaction> outstandingCollection = new ArrayList<>();
     public AtomicInteger orderCounter = new AtomicInteger(0);
@@ -56,52 +57,80 @@ public class Client implements ClientInterface {
         }
     }
 
-    @Override
-    public int getQuickBalance() throws Exception {
-        return 0;
+    public void getQuickBalance(Transaction transaction) throws Exception {
+        // Remove the transaction from outstandingList if found
+        this.outstandingCollection.stream()
+                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
+                .findFirst()
+                .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
+
+        // Print the synced balance
+        System.out.println("Quick Balance: " + this.balance);
     }
 
-    @Override
-    public int getSyncedBalance() throws Exception {
-        return 0;
+    public void getSyncedBalance(Transaction transaction) throws Exception {
+        // Remove the transaction from outstandingList if found
+        this.outstandingCollection.stream()
+                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
+                .findFirst()
+                .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
+
+        // Print the synced balance
+        System.out.println("Synced Balance: " + this.balance);
     }
 
-    @Override
-    public void deposit(int amount) throws Exception {
+    public void deposit(Transaction transaction, int amount) throws Exception {
+        this.outstandingCollection.stream()
+                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
+                .findFirst()
+                .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
 
+        // Update the balance by adding the transaction amount
+        this.balance += amount;
+
+        // Add the transaction to the executed list
+        this.executedList.add(transaction);
+
+        // Increment the order counter using AtomicInteger
+        this.orderCounter.incrementAndGet();
     }
 
-    @Override
-    public void addInterest(int percent) throws Exception {
+    public void addInterest(Transaction transaction, int percent) throws Exception {
+        this.outstandingCollection.stream()
+                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
+                .findFirst()
+                .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
 
+        // Update the balance by applying interest
+        this.balance *= (1.0 + percent / 100.0);
+
+        // Add the transaction to the executed list
+        this.executedList.add(transaction);
+
+        // Increment the order counter using AtomicInteger
+        this.orderCounter.incrementAndGet();
     }
 
-    @Override
     public void getHistory() throws Exception {
 
     }
 
-    @Override
     public String checkTxStatus(int transactionId) throws Exception {
         return "";
     }
 
-    @Override
     public void cleanHistory() throws Exception {
 
     }
 
-    @Override
     public List<String> memberInfo() throws Exception {
         return List.of();
     }
 
-    @Override
     public void sleep(int duration) throws Exception {
 
     }
 
-    @Override
     public void exit() throws Exception {
 
     }
