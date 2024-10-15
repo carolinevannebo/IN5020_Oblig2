@@ -1,7 +1,6 @@
 package com.in5020.group4;
 
 import com.in5020.group4.client.Client;
-import com.in5020.group4.models.Query;
 import com.in5020.group4.utils.TxtFileReader;
 
 import java.util.List;

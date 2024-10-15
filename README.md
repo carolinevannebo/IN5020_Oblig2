@@ -8,19 +8,19 @@
 - [x] Client connects to spread server using listener - Caroline
 - [x] Client should join a group whose name is `<account name>` - Caroline
 - [ ] Client should wait until all members have joined the group - Caroline
-- [ ] File reader - Caroline
+- [x] File reader - Caroline
 - [ ] Implement file reader - Caroline
-- [ ] getQuickBalance - Liang
+- [x] getQuickBalance - Liang
 - [ ] getSyncedBalance (naive implementation) - TBD
-- [ ] getSyncedBalance (correct implementation) - TBD
-- [ ] deposit <amount> - Liang
-- [ ] addInterest <percent> - Liang
-- [ ] getHistory - Liang
+- [x] getSyncedBalance (correct implementation) - TBD
+- [x] deposit <amount> - Liang
+- [x] addInterest <percent> - Liang
+- [x] getHistory - Liang
 - [ ] checkTxStatus <Transaction.unique_id> - Caroline
-- [ ] cleanHistory - Caroline
+- [x] cleanHistory - Caroline
 - [ ] memberInfo - Caroline
-- [ ] sleep <duration> - Liang
-- [ ] exit - Liang
+- [x] sleep <duration> - Liang
+- [x] exit - Liang
 - [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
 

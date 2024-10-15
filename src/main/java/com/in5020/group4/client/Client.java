@@ -2,8 +2,6 @@ package com.in5020.group4.client;
 
 import com.in5020.group4.Listener;
 import com.in5020.group4.Transaction;
-import com.in5020.group4.models.Query;
-import com.in5020.group4.utils.TxtFileReader;
 import spread.SpreadConnection;
 import spread.SpreadException;
 import spread.SpreadGroup;
