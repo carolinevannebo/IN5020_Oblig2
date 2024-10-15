@@ -15,9 +15,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     static Client client = new Client();
+
     public static void main(String[] args) throws InterruptedException {
-        Client.run();
-        Thread.sleep(100000000);
+        String serverAddress = "127.0.0.1";
+        String accountName = "groupXX";
+        int numberOfReplicas = 2;
+
+        Listener listener = new Listener(numberOfReplicas);
+        for (int i = 1; i <= numberOfReplicas; i++) {
+            new Thread(() -> {
+                Client client = new Client(serverAddress, accountName, listener);
+                client.connect();
+            }).start();
+        }
     }
 
     private static void runInput(String input) throws InterruptedException {
