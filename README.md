@@ -7,7 +7,7 @@
 <b>Todo:</b>
 - [x] Client connects to spread server using listener - Caroline
 - [x] Client should join a group whose name is `<account name>` - Caroline
-- [ ] Client should wait until all members have joined the group - Caroline
+- [x] Client should wait until all members have joined the group - Caroline
 - [x] File reader - Caroline
 - [ ] Implement file reader - Caroline
 - [x] getQuickBalance - Liang
@@ -21,6 +21,10 @@
 - [ ] memberInfo - Caroline
 - [x] sleep <duration> - Liang
 - [x] exit - Liang
+- [ ] If the optional argument of [file name] is not present, the client will
+  interactively accept commands from the user through a command line. If [file name] is
+  present, then the client will perform batch processing of commands that it will read from [file
+  name] every T seconds and exit. T is a random float number between 0.5-1.5s.
 - [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
 

@@ -19,32 +19,32 @@ public class Client {
     private final String serverAddress;
     private final String accountName;
     private final Listener listener;
+    private final int clientNumber;
+
     private List<Transaction> executedList = new ArrayList<>();
     private Collection<Transaction> outstandingCollection = new ArrayList<>();
     private AtomicInteger orderCounter = new AtomicInteger(0);
     private AtomicInteger outstandingCounter = new AtomicInteger(0);
     public double balance;
 
-    public Client(String serverAddress, String accountName, Listener listener) {
+    public Client(String serverAddress, String accountName, Listener listener, int clientNumber) {
         this.serverAddress = serverAddress;
         this.accountName = accountName;
         this.listener = listener;
+        this.clientNumber = clientNumber;
     }
 
     public void connect() {
         SpreadConnection connection = new SpreadConnection();
-
         Random rand = new Random();
         int id = rand.nextInt();
+
         try {
             connection.add(listener);
-            // if the ifi machine is used <use the ifi machine ip address>
-            //connection.connect(InetAddress.getByName("129.240.65.59"), 4803, "test connection", false, true);
-
-            System.out.println("Testing connection on localhost");
+            print("Testing connection on localhost");
             // for the local machine (172.18.0.1 is the loop-back address in this machine)
             connection.connect(InetAddress.getByName(serverAddress), 4803, String.valueOf(id), false, true);
-            System.out.println("Connection established");
+            print("Connection established on " + serverAddress);
 
             SpreadGroup group = new SpreadGroup();
             group.join(connection, accountName);
@@ -55,15 +55,19 @@ public class Client {
             message.setObject("client name : " + id);
 
             connection.multicast(message);
+            listener.membershipMessageReceived(message);
 
-            //listener.membershipMessageReceived(message);
-            //System.out.println("Waiting for replicas to join");
-            //listener.waitForAllReplicas(); // bug: it never finishes waiting
-            //System.out.println("All replicas joined");
-        } catch (SpreadException | UnknownHostException /*| InterruptedException*/ e) {
+            synchronized (listener) {
+                while (!listener.allReplicasJoined) {
+                    print("Waiting for all replicas to join...\n");
+                    listener.wait();
+                }
+            }
+        } catch (SpreadException | UnknownHostException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
+
     public AtomicInteger getOrderCounter() {
         return this.orderCounter;
     }
@@ -106,7 +110,7 @@ public class Client {
                 .findFirst()
                 .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
 
-        System.out.println("Synced Balance: " + this.balance);
+        print("Synced Balance: " + this.balance);
     }
 
     public void deposit(Transaction transaction, int amount) {
@@ -139,5 +143,9 @@ public class Client {
 
     public List<String> memberInfo() throws Exception {
         return List.of();
+    }
+
+    private void print(String message) {
+        System.out.println("[Client " + clientNumber + "] " + message);
     }
 }

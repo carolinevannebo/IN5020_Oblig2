@@ -2,14 +2,19 @@ package com.in5020.group4;
 
 import spread.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Listener implements AdvancedMessageListener {
     private final int numberOfReplicas;
     public boolean allReplicasJoined = false;
+    private final List<String> messages = new ArrayList<>();
 
     public Listener(int numberOfReplicas) {
         this.numberOfReplicas = numberOfReplicas;
     }
 
+    @Override
     public synchronized void regularMessageReceived(SpreadMessage message) {
         String msg = null;
         try {
@@ -22,22 +27,23 @@ public class Listener implements AdvancedMessageListener {
 
     @Override
     public synchronized void membershipMessageReceived(SpreadMessage spreadMessage) {
-        MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
-        //membershipInfo.isCausedByJoin(); todo: check out this
-        if (membershipInfo.isCausedByJoin()) {
-            int currentMembers = membershipInfo.getMembers().length;
-            System.out.println("Current members in group: " + currentMembers);
+        String msg = null;
+        try {
+            msg = (String) spreadMessage.getObject();
+            print("Received message '" + msg + "'");
+            messages.add(msg);
+        } catch (SpreadException e) {
+            throw new RuntimeException(e);
+        }
 
-            if (currentMembers == numberOfReplicas) {
-                allReplicasJoined = true;
-                notifyAll();
-            }
+        if (messages.size() >= numberOfReplicas) {
+            allReplicasJoined = true;
+            print("All replicas joined. Notifying waiting clients...\n");
+            notifyAll();
         }
     }
 
-    public synchronized void waitForAllReplicas() throws InterruptedException {
-        while (!allReplicasJoined) {
-            wait();
-        }
+    private void print(String message) {
+        System.out.println("[Listener] " + message);
     }
 }
