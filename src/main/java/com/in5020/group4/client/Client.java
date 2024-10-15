@@ -29,7 +29,6 @@ public class Client implements ClientInterface {
         this.serverAddress = serverAddress;
         this.accountName = accountName;
         this.listener = listener;
-        //connect();
     }
 
     public void connect() {
@@ -57,14 +56,9 @@ public class Client implements ClientInterface {
 
             connection.multicast(message);
 
-            /*List<Query> testingQueries = TxtFileReader.getQueries();
-            for (Query query : testingQueries) {
-                System.out.println("Query : " + query);
-            }*/
-
             //listener.membershipMessageReceived(message);
             System.out.println("Waiting for replicas to join");
-            listener.waitForAllReplicas();
+            listener.waitForAllReplicas(); // bug: it never finishes waiting
             System.out.println("All replicas joined");
         } catch (SpreadException | UnknownHostException | InterruptedException e) {
             throw new RuntimeException(e);
