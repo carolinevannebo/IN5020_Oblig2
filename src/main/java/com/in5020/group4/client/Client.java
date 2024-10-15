@@ -57,15 +57,32 @@ public class Client {
         }
     }
 
-    public void getQuickBalance(Transaction transaction) throws Exception {
-        // Remove the transaction from outstandingList if found
-        this.outstandingCollection.stream()
-                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
-                .findFirst()
-                .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
+    public AtomicInteger getOrderCounter() {
+        return this.orderCounter;
+    }
 
-        // Print the synced balance
-        System.out.println("Quick Balance: " + this.balance);
+    public void setOrderCounter(AtomicInteger orderCounter) {
+        this.orderCounter = orderCounter;
+    }
+
+    public List<Transaction> getExecutedList() {
+        return this.executedList;
+    }
+
+    public void setExecutedList(List<Transaction> executedList) {
+        this.executedList = executedList;
+    }
+
+    public Collection<Transaction> getOutstandingCollection() {
+        return this.outstandingCollection;
+    }
+
+    public void setOutstandingCollection(List<Transaction> outstandingCollection) {
+        this.outstandingCollection = outstandingCollection;
+    }
+
+    public double getQuickBalance() {
+        return balance;
     }
 
     public void getSyncedBalance(Transaction transaction) throws Exception {
