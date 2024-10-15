@@ -2,7 +2,7 @@ memberInfo
 getSyncedBalance
 getQuickBalance
 deposit 100
-checkTxStatus <add transaction ID of the above deposit 100 command>
+checkTxStatus
 getSyncedBalance
 getQuickBalance
 deposit 100
@@ -23,7 +23,7 @@ getQuickBalance
 deposit 100
 deposit 100
 addInterest 20
-checkTxStatus <add transaction ID of the above addInterest 20 command>
+checkTxStatus
 memberInfo
 getHistory
 cleanHistory

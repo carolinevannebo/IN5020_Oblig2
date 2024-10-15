@@ -2,6 +2,8 @@ package com.in5020.group4.client;
 
 import com.in5020.group4.Listener;
 import com.in5020.group4.Transaction;
+import com.in5020.group4.models.Query;
+import com.in5020.group4.utils.TxtFileReader;
 import spread.SpreadConnection;
 import spread.SpreadException;
 import spread.SpreadGroup;
@@ -56,6 +58,11 @@ public class Client implements ClientInterface {
             message.setObject("client name : " + id);
 
             connection.multicast(message);
+
+            /*List<Query> testingQueries = TxtFileReader.getQueries();
+            for (Query query : testingQueries) {
+                System.out.println("Query : " + query);
+            }*/
 
             //listener.membershipMessageReceived(message);
             System.out.println("Waiting for replicas to join");

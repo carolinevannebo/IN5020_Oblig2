@@ -1,6 +1,11 @@
 package com.in5020.group4;
 
 import com.in5020.group4.client.Client;
+import com.in5020.group4.models.Query;
+import com.in5020.group4.utils.TxtFileReader;
+
+import java.util.List;
+
 /** For this assignment you have to use the Spread toolkit to build a replicated banking system.
  *  The system architecture will consist of
         (a) the standard Spread server and
@@ -14,6 +19,12 @@ public class Main {
         String serverAddress = "127.0.0.1";
         String accountName = "groupXX";
         int numberOfReplicas = 2;
+
+        System.out.println("just testing file reader:");
+        List<String> testingQueries = TxtFileReader.getQueries();
+        for (String query : testingQueries) {
+            System.out.println("query: " + query);
+        }
 
         Listener listener = new Listener(numberOfReplicas);
         for (int i = 1; i <= numberOfReplicas; i++) {
