@@ -75,6 +75,14 @@ public class Client {
         this.orderCounter = orderCounter;
     }
 
+    public AtomicInteger getOutstandingCounter() {
+        return this.outstandingCounter;
+    }
+
+    public void setOutstandingCounter(AtomicInteger outstandingCounter) {
+        this.outstandingCounter = outstandingCounter;
+    }
+
     public List<Transaction> getExecutedList() {
         return this.executedList;
     }
@@ -134,6 +142,7 @@ public class Client {
         this.orderCounter.incrementAndGet();
     }
 
+<<<<<<< Updated upstream
 
     public String checkTxStatus(int transactionId) throws Exception {
         return "";
@@ -145,4 +154,6 @@ public class Client {
     }
 
 
+=======
+>>>>>>> Stashed changes
 }
