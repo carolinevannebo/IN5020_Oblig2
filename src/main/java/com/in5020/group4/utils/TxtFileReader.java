@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TxtFileReader {
-    private final File file;// = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/input.txt");
+    private final File file;
     private static final List<String> queries = new ArrayList<>();
 
     public TxtFileReader(File file) {

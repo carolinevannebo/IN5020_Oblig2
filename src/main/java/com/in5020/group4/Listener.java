@@ -3,6 +3,7 @@ package com.in5020.group4;
 import spread.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Listener implements AdvancedMessageListener {
@@ -12,6 +13,13 @@ public class Listener implements AdvancedMessageListener {
 
     public Listener(int numberOfReplicas) {
         this.numberOfReplicas = numberOfReplicas;
+        /*new Thread(() -> {
+            if (!messages.isEmpty()) {
+                for (String message : messages) {
+                    print(message);
+                }
+            }
+        }).start();*/
     }
 
     @Override
@@ -22,6 +30,7 @@ public class Listener implements AdvancedMessageListener {
         } catch (SpreadException e) {
             throw new RuntimeException(e);
         }
+        messages.add(msg);
         print(msg);
     }
 
@@ -30,7 +39,11 @@ public class Listener implements AdvancedMessageListener {
         String msg = null;
         try {
             msg = (String) spreadMessage.getObject();
-            print("Received replica '" + msg + "'");
+
+            if(spreadMessage.isRegular())
+                print("Something wrong happened, membershipMessageReceived got a regular message: " + msg);
+            else
+                print("New membership message: " + msg);
             messages.add(msg);
         } catch (SpreadException e) {
             throw new RuntimeException(e);

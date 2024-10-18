@@ -2,8 +2,11 @@ package com.in5020.group4;
 
 import com.in5020.group4.client.Client;
 import com.in5020.group4.utils.TxtFileReader;
+import spread.SpreadGroup;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,37 +24,39 @@ import static java.lang.Thread.sleep;
 
 public class Main {
     private static final AtomicInteger outstandingCounter = new AtomicInteger(0);
-    private static AtomicInteger orderCounter = new AtomicInteger(0);
+    //private static AtomicInteger orderCounter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException {
         String serverAddress = "127.0.0.1";
-        String accountName = "groupXX";
+        String accountName = "replicaGroup";
         int numberOfReplicas = 3;
 
         Listener listener = new Listener(numberOfReplicas);
+        SpreadGroup group = new SpreadGroup();
         for (int i = 1; i <= numberOfReplicas; i++) {
             int finalI = i;
             new Thread(() -> {
                 try {
                     File inputFile = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/Rep"+finalI+".txt");
-                    TxtFileReader reader = new TxtFileReader(inputFile);
-                    List<String> queries = reader.getQueries();
 
-                    Client client = new Client(serverAddress, accountName, listener, finalI);
+                    Client client = new Client(serverAddress, accountName, listener, group, finalI);
                     client.connect();
 
-                    for (String query : queries) {
-                        client.print(query);
-                        //runInput(client, query);
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+                    String line = "";
+                    while ((line = bufferedReader.readLine()) != null) {
+                        Transaction transaction = new Transaction(outstandingCounter.incrementAndGet(), line);
+                        client.addOutStandingCollection(transaction);
                     }
                 } catch (/*Interrupted*/Exception e) {
                     throw new RuntimeException(e);
                 }
             }).start();
-            sleep(1000); // just to test concurrency
         }
+        sleep(1000000);
     }
 
+    // todo: move logic into client
     private static void runInput(Client client, String input) throws InterruptedException {
         /// I think the input file will give us a client ID, meaning we should not pass a client params, but an ID, to establish which client to use
         client.print("\nInput:" + input);
@@ -61,7 +66,7 @@ public class Main {
         } else if (input.equalsIgnoreCase("getSyncedBalance")) {
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
+            transaction.setUniqueId(outstandingCounter.incrementAndGet());
             client.getSyncedBalance(transaction);
             client.addOutStandingCollection(transaction);
 
@@ -70,11 +75,11 @@ public class Main {
             int amount = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
+            transaction.setUniqueId(outstandingCounter.incrementAndGet());
             client.deposit(transaction, amount);
             client.addOutStandingCollection(transaction);
 
-            orderCounter.incrementAndGet();
+            //orderCounter.incrementAndGet();
             outstandingCounter.incrementAndGet();
 
         } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
@@ -82,11 +87,11 @@ public class Main {
             int percent = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
+            transaction.setUniqueId(outstandingCounter.incrementAndGet());
             client.addInterest(transaction, percent);
             client.addOutStandingCollection(transaction);
 
-            orderCounter.incrementAndGet();
+            //orderCounter.incrementAndGet();
             outstandingCounter.incrementAndGet();
 
         } else if (input.equalsIgnoreCase("getHistory")) {
