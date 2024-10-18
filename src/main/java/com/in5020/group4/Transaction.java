@@ -1,11 +1,11 @@
 package com.in5020.group4;
 
 public class Transaction {
-    public int uniqueId;
+    public String uniqueId;
     public String command;
 
     public Transaction() {}
-    public Transaction(int uniqueId, String command) {
+    public Transaction(String uniqueId, String command) {
         this.uniqueId = uniqueId;
         this.command = command;
     }
@@ -18,11 +18,11 @@ public class Transaction {
         return command;
     }
 
-    public void setUniqueId(int uniqueId) {
+    public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
     }
 
-    public int getUniqueId() {
+    public String getUniqueId() {
         return uniqueId;
     }
 }

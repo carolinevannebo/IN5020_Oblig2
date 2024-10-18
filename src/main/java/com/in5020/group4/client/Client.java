@@ -85,8 +85,7 @@ public class Client {
 
     public void connect() {
         Random rand = new Random();
-        int id = rand.nextInt();//this.clientNumber;
-
+        int id = rand.nextInt();
         try {
             connection.add(listener);
             // for the local machine (172.18.0.1 is the loop-back address in this machine)
@@ -132,6 +131,14 @@ public class Client {
         }
     }
 
+    public AtomicInteger getOrderCounter() {
+        return this.orderCounter;
+    }
+
+    public void setOrderCounter(AtomicInteger orderCounter) {
+        this.orderCounter = orderCounter;
+    }
+
     public List<Transaction> getExecutedList() {
         return this.executedList;
     }
@@ -162,36 +169,35 @@ public class Client {
 
     public void getSyncedBalance(Transaction transaction) {
         this.outstandingCollection.stream()
-                .filter(it -> it.getUniqueId() == transaction.getUniqueId())
+                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst()
                 .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
 
-        print("Synced Balance: " + this.balance);
+        System.out.println("Synced Balance: " + this.balance);
     }
 
     public void deposit(Transaction transaction, int amount) {
         this.outstandingCollection.stream()
-                .filter(it -> it.getUniqueId() == transaction.getUniqueId())
+                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst()
                 .ifPresent(this.outstandingCollection::remove);
 
         this.balance += amount;
         this.executedList.add(transaction);
-        //this.orderCounter.incrementAndGet();
-        //this.outstandingCounter.incrementAndGet();
+        this.orderCounter.incrementAndGet();
     }
 
     public void addInterest(Transaction transaction, int percent) {
         this.outstandingCollection.stream()
-                .filter(it -> it.getUniqueId() == transaction.getUniqueId())
+                .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst()
                 .ifPresent(this.outstandingCollection::remove);
 
         this.balance *= (1.0 + percent / 100.0);
         this.executedList.add(transaction);
-        //this.orderCounter.incrementAndGet();
-        //this.outstandingCounter.incrementAndGet();
+        this.orderCounter.incrementAndGet();
     }
+
 
     public String checkTxStatus(int transactionId) throws Exception {
         return "";

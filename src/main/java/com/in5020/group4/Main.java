@@ -57,73 +57,71 @@ public class Main {
     }
 
     // todo: move logic into client
-    private static void runInput(Client client, String input) throws InterruptedException {
-        /// I think the input file will give us a client ID, meaning we should not pass a client params, but an ID, to establish which client to use
-        client.print("\nInput:" + input);
+    private static void runInput(String input) throws InterruptedException {
         if (input.equalsIgnoreCase("getQuickBalance")) {
-            client.print("Quick Balance: " + client.getQuickBalance());
+            System.out.println("\n" + input);
+            System.out.println("Quick Balance: " + client.getQuickBalance());
 
         } else if (input.equalsIgnoreCase("getSyncedBalance")) {
+            System.out.println("\n" + input);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(outstandingCounter.incrementAndGet());
+            transaction.setUniqueId(input);
             client.getSyncedBalance(transaction);
             client.addOutStandingCollection(transaction);
 
         } else if (input.matches("deposit \\d+(\\.\\d+)?")) {
+            System.out.println("\n" + input);
             String[] args = input.split(" ");
             int amount = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(outstandingCounter.incrementAndGet());
+            transaction.setUniqueId(input);
             client.deposit(transaction, amount);
             client.addOutStandingCollection(transaction);
 
-            //orderCounter.incrementAndGet();
-            outstandingCounter.incrementAndGet();
-
         } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
+            System.out.println("\n" + input);
             String[] args = input.split(" ");
             int percent = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(outstandingCounter.incrementAndGet());
+            transaction.setUniqueId(input);
             client.addInterest(transaction, percent);
             client.addOutStandingCollection(transaction);
 
-            //orderCounter.incrementAndGet();
-            outstandingCounter.incrementAndGet();
-
         } else if (input.equalsIgnoreCase("getHistory")) {
-            client.getHistory();
-            /*client.print("\nExecuted List:");
+            System.out.println("\n" + input);
+            System.out.println("\nExecuted List:");
             for (Transaction transaction : client.getExecutedList()) {
-                client.print(transaction.getUniqueId() + ":" + transaction.getCommand());
+                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
             }
-            client.print("\nOutstanding collection:");
+
+            System.out.println("\nOutstanding collection:");
             for (Transaction transaction : client.getOutstandingCollection()) {
-                client.print(transaction.getUniqueId() + ":" + transaction.getCommand());
-            }*/
+                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
+            }
 
         } else if (input.matches("checkTxStatus <.*>")) {
-            client.print("\nCheck Tx Status");
+            System.out.println("\n" + input);
 
         } else if (input.equalsIgnoreCase("cleanHistory")) {
-            client.print("Executing clean history");
-            //client.setExecutedList(new ArrayList<>());
-            //client.setOrderCounter(new AtomicInteger(0));
+            System.out.println("Executing clean history");
+            client.setExecutedList(new ArrayList<>());
+            client.setOrderCounter(new AtomicInteger(0));
 
         } else if (input.equalsIgnoreCase("memberInfo")) {
-            client.print("\nMember Info");
+            System.out.println("\n" + input);
 
         } else if (input.matches("sleep \\d+")) {
             String[] args = input.split(" ");
             int time = Integer.parseInt(args[1]);
-            client.print("Sleep: " + time + " seconds");
-            sleep(time);
+            System.out.println("\nSleep: " + time + " seconds");
+            Thread.sleep(time);
 
         } else if (input.equalsIgnoreCase("exit")) {
-            client.exit();
+            System.out.println("\n" + input);
+            System.exit(0);
         }
     }
 }
