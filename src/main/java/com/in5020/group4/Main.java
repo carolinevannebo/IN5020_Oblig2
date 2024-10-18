@@ -35,9 +35,10 @@ public class Main {
         SpreadGroup group = new SpreadGroup();
         for (int i = 1; i <= numberOfReplicas; i++) {
             int finalI = i;
+            String repName = "Rep" + finalI;
             new Thread(() -> {
                 try {
-                    File inputFile = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/Rep"+finalI+".txt");
+                    File inputFile = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/"+repName+".txt");
 
                     Client client = new Client(serverAddress, accountName, listener, group, finalI);
                     client.connect();
@@ -45,7 +46,7 @@ public class Main {
                     BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
                     String line = "";
                     while ((line = bufferedReader.readLine()) != null) {
-                        Transaction transaction = new Transaction(outstandingCounter.incrementAndGet(), line);
+                        Transaction transaction = new Transaction(repName, line);
                         client.addOutStandingCollection(transaction);
                     }
                 } catch (/*Interrupted*/Exception e) {
@@ -57,7 +58,7 @@ public class Main {
     }
 
     // todo: move logic into client
-    private static void runInput(String input) throws InterruptedException {
+    private static void runInput(Client client, String repName, String input) throws InterruptedException {
         if (input.equalsIgnoreCase("getQuickBalance")) {
             System.out.println("\n" + input);
             System.out.println("Quick Balance: " + client.getQuickBalance());
@@ -66,7 +67,7 @@ public class Main {
             System.out.println("\n" + input);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
+            transaction.setUniqueId(repName);
             client.getSyncedBalance(transaction);
             client.addOutStandingCollection(transaction);
 
@@ -76,7 +77,7 @@ public class Main {
             int amount = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
+            transaction.setUniqueId(repName);
             client.deposit(transaction, amount);
             client.addOutStandingCollection(transaction);
 
@@ -86,7 +87,7 @@ public class Main {
             int percent = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
+            transaction.setUniqueId(repName);
             client.addInterest(transaction, percent);
             client.addOutStandingCollection(transaction);
 
