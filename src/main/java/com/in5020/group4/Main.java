@@ -1,10 +1,18 @@
 package com.in5020.group4;
 
 import com.in5020.group4.client.Client;
+import com.in5020.group4.utils.TxtFileReader;
+import spread.SpreadGroup;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.Scanner;
+
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.sleep;
 
 /** For this assignment you have to use the Spread toolkit to build a replicated banking system.
  *  The system architecture will consist of
@@ -15,143 +23,113 @@ import java.util.Scanner;
  */
 
 public class Main {
-    static Client client = new Client();
+    private static final AtomicInteger outstandingCounter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException {
         String serverAddress = "127.0.0.1";
-        String accountName = "groupXX";
-<<<<<<< Updated upstream
-        int numberOfReplicas = 2;
-=======
-        int numberOfReplicas = 1;
-        String fileName = "input.txt";
-        Scanner scanner = new Scanner(System.in);
-        boolean running = true;
->>>>>>> Stashed changes
+        String accountName = "replicaGroup";
+        int numberOfReplicas = 3;
 
         Listener listener = new Listener(numberOfReplicas);
+        SpreadGroup group = new SpreadGroup();
         for (int i = 1; i <= numberOfReplicas; i++) {
+            int finalI = i;
             new Thread(() -> {
-<<<<<<< Updated upstream
-                Client client = new Client(serverAddress, accountName, listener);
-                client.connect();
-=======
                 try {
-                    Client client = new Client(serverAddress, accountName, listener);
+                    File inputFile = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/Rep"+finalI+".txt");
+
+                    Client client = new Client(serverAddress, accountName, listener, group, finalI);
                     client.connect();
 
-                    if (fileName != null) {
-                        List<String> testingQueries = TxtFileReader.getQueries(fileName);
-                        for (String query : testingQueries) { // todo: each client should not run the whole file by itself
-                            //System.out.println("query: " + query);
-                            runInput(client, query);
-                        }
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+                    String line = "";
+                    while ((line = bufferedReader.readLine()) != null) {
+                        Transaction transaction = new Transaction(outstandingCounter.incrementAndGet(), line);
+                        client.addOutStandingCollection(transaction);
                     }
-                    else {
-                        while (running) {
-                            String query = scanner.nextLine().trim();
-                            runInput(client, query);
-                        }
-                    }
-                } catch (InterruptedException e) {
+                } catch (/*Interrupted*/Exception e) {
                     throw new RuntimeException(e);
                 }
->>>>>>> Stashed changes
             }).start();
         }
+        sleep(1000000);
     }
 
-    private static void runInput(String input) throws InterruptedException {
+    private static void runInput(String clientName, String input) throws InterruptedException {
+        /// I think the input file will give us a client ID, meaning we should not pass a client params, but an ID, to establish which client to use
+        System.out.println("\nInput:" + input);
         if (input.equalsIgnoreCase("getQuickBalance")) {
-            System.out.println("\n" + input);
-            System.out.println("Quick Balance: " + client.getQuickBalance());
+            System.out.println("Quick Balance: " + client.getBalance());
 
         } else if (input.equalsIgnoreCase("getSyncedBalance")) {
-            System.out.println("\n" + input);
+            // Naive
+            if (client.getOutstandingCounter() == 0) {
+                //client.getSyncedBalance(transaction);
+                System.out.println("Quick Balance: " + client.getBalance());
+            }
+            // Corrected
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
-            client.getSyncedBalance(transaction);
+            transaction.setUniqueId(clientName + " " + client.getOutstandingCounter());
             client.addOutStandingCollection(transaction);
 
         } else if (input.matches("deposit \\d+(\\.\\d+)?")) {
-            System.out.println("\n" + input);
             String[] args = input.split(" ");
             int amount = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
-            client.deposit(transaction, amount);
+            transaction.setUniqueId(clientName + " " + client.getOutstandingCounter());
             client.addOutStandingCollection(transaction);
+            client.setOutstandingCounter(client.getOutstandingCounter + 1);
 
         } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
-            System.out.println("\n" + input);
             String[] args = input.split(" ");
             int percent = Integer.parseInt(args[1]);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(input);
-            client.addInterest(transaction, percent);
+            transaction.setUniqueId(clientName + " " + client.getOutstandingCounter());
             client.addOutStandingCollection(transaction);
+            client.setOutstandingCounter(client.getOutstandingCounter + 1);
 
         } else if (input.equalsIgnoreCase("getHistory")) {
-            System.out.println("\n" + input);
             System.out.println("\nExecuted List:");
             for (Transaction transaction : client.getExecutedList()) {
                 System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
             }
-
             System.out.println("\nOutstanding collection:");
             for (Transaction transaction : client.getOutstandingCollection()) {
                 System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
             }
 
-        } else if (input.matches("checkTxStatus <.*>")) {
-<<<<<<< Updated upstream
-            System.out.println("\n" + input);
-=======
-            System.out.println("\nCheck Tx Status");
-            String firstPart = input.substring(1, input.indexOf(" ", 1));
-            String secondPart = input.substring(firstPart.length() + 2);
-            //generate transaction id if it is from the file
-            if (secondPart.contains("<")) {
-                // ToDO: get client id
-                secondPart = clientName + " " + (client.getOutstandingCounter().decrementAndGet());
-            }
-            System.out.println("\nTransaction status of " + secondPart);
-            String finalTransactionId = secondPart;
-            Transaction transactionInExecuted = client.getExecutedList().stream()
-                    .filter(it -> it.getUniqueId().equals(finalTransactionId)).findFirst().orElse(null);
-            if (transactionInExecuted != null) {
-                System.out.println(transactionInExecuted.getCommand() + " is executed.");
-                return;
-            }
-            Transaction transactionInOutstanding = client.getOutstandingCollection().stream()
-                    .filter(it -> it.getUniqueId().equals(finalTransactionId)).findFirst().orElse(null);
-            if (transactionInOutstanding != null) {
-                System.out.println(transactionInOutstanding.getCommand() + " is not executed yet.");
+        } else if (input.matches("checkTxStatus \\w+ \\d+")) {
+            String[] args = input.split(" ");
+            String transactionId = args[1] + " " + args[2];
+            Transaction transactionExecuted = client.getExecutedList().stream()
+                    .filter(it -> it.getUniqueId().equals(transactionId)).findFirst().orElse(null);
+            if (transactionExecuted != null) {
+                System.out.println(transactionExecuted.getCommand() + " is executed");
             } else {
-                System.out.println("Transaction not found");
+                System.out.println(transactionExecuted.getCommand() + " is not executed");
             }
->>>>>>> Stashed changes
 
         } else if (input.equalsIgnoreCase("cleanHistory")) {
-            System.out.println("Executing clean history");
             client.setExecutedList(new ArrayList<>());
-            client.setOrderCounter(new AtomicInteger(0));
 
         } else if (input.equalsIgnoreCase("memberInfo")) {
-            System.out.println("\n" + input);
+            System.out.println("\nMember Info");
+            for (int i = 0; i < numberOfReplicas; i++) {
+                // TODO: get member info
+                System.out.println(" ");
+            }
 
         } else if (input.matches("sleep \\d+")) {
             String[] args = input.split(" ");
             int time = Integer.parseInt(args[1]);
             System.out.println("\nSleep: " + time + " seconds");
-            Thread.sleep(time);
+            sleep(time);
 
         } else if (input.equalsIgnoreCase("exit")) {
-            System.out.println("\n" + input);
-            System.exit(0);
+            client.exit();
         }
     }
 }
