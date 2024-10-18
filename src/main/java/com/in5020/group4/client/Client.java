@@ -7,63 +7,127 @@ import spread.SpreadException;
 import spread.SpreadGroup;
 import spread.SpreadMessage;
 
+import java.io.InterruptedIOException;
+import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+// todo: thread for each in outstandingCollection being executed, will be added to executedList, with orderCounter
 public class Client {
     private final String serverAddress;
     private final String accountName;
     private final Listener listener;
-    public int numberOfReplicas;
-    public double balance;
-    public List<Transaction> executedList = new ArrayList<>();
-    public Collection<Transaction> outstandingCollection = new ArrayList<>();
-    public AtomicInteger orderCounter = new AtomicInteger(0);
-    public AtomicInteger outstandingCounter = new AtomicInteger(0);
+    private final int clientNumber;
 
-    public Client(String serverAddress, String accountName, Listener listener) {
+    private final SpreadConnection connection = new SpreadConnection();
+    private final SpreadGroup group = new SpreadGroup();
+
+    private static AtomicInteger orderCounter = new AtomicInteger(0);
+    private List<Transaction> executedList = new ArrayList<>();
+    private Collection<Transaction> outstandingCollection = new ArrayList<>();
+    //private AtomicInteger orderCounter = new AtomicInteger(0);
+    //private AtomicInteger outstandingCounter = new AtomicInteger(0);
+    public double balance;
+    private Thread receiverThread;
+    private Thread senderThread;
+
+    public Client(String serverAddress, String accountName, Listener listener, SpreadGroup group, int clientNumber) {
         this.serverAddress = serverAddress;
         this.accountName = accountName;
         this.listener = listener;
-        //connect();
+        /*this.group = group;*/
+        this.clientNumber = clientNumber;
+
+        this.receiverThread = new Thread(() -> { // todo: not working - fix it
+            System.out.println("[Client " + clientNumber + "] receiverThread running");
+            while (true) {
+                try {
+                    if (connection.poll()) {
+                        String receivedMsg = (String) connection.receive().getObject();
+                        System.out.println("[Client " + clientNumber + "] received message: " + receivedMsg);
+                    }
+                } catch (SpreadException | InterruptedIOException e) {
+                    throw new RuntimeException(e); // ??
+                }
+            }
+        });
+
+        this.senderThread = new Thread(() -> {
+            System.out.println("[Client " + clientNumber + "] senderThread running");
+            outstandingCollection.forEach(transaction -> orderCounter.incrementAndGet());
+
+            while (orderCounter.get() > 0) {
+                try {
+                    if (!outstandingCollection.isEmpty()) {
+                        // todo: call the method that will do the logic, then broadcast
+                        for (Transaction transaction : outstandingCollection) {
+                            try {
+                                sendMessage(transaction.command);
+                                executedList.add(transaction);
+                                //outstandingCollection.remove(transaction);
+                            } catch (SpreadException e) {
+                                System.out.println("[Client " + clientNumber + "] error sending message: " + e.getMessage());
+                            }
+                        }
+                        outstandingCollection.clear();
+                        orderCounter.set(0);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public void connect() {
-        SpreadConnection connection = new SpreadConnection();
-
         Random rand = new Random();
         int id = rand.nextInt();
         try {
             connection.add(listener);
-            // if the ifi machine is used <use the ifi machine ip address>
-            //connection.connect(InetAddress.getByName("129.240.65.59"), 4803, "test connection", false, true);
-
-            System.out.println("Testing connection on localhost");
             // for the local machine (172.18.0.1 is the loop-back address in this machine)
             connection.connect(InetAddress.getByName(serverAddress), 4803, String.valueOf(id), false, true);
-            System.out.println("Connection established");
-
-            SpreadGroup group = new SpreadGroup();
+            System.out.println("[Client " + clientNumber + "] Connected to " + serverAddress + ":" + 4803 + " " + connection.getPrivateGroup());
             group.join(connection, accountName);
 
             SpreadMessage message = new SpreadMessage();
             message.addGroup(group);
             message.setFifo();
-            message.setObject("client name : " + id);
+            message.setObject("client name: " + id);
+            message.setServiceType(16128); // to make it a membership message
 
             connection.multicast(message);
+            listener.membershipMessageReceived(message);
 
-            //listener.membershipMessageReceived(message);
-            System.out.println("Waiting for replicas to join");
-            listener.waitForAllReplicas();
-            System.out.println("All replicas joined");
-        } catch (SpreadException | UnknownHostException | InterruptedException e) {
-            throw new RuntimeException(e);
+            synchronized (listener) {
+                while (!listener.allReplicasJoined) {
+                    System.out.println("[Client " + clientNumber + "] Waiting for all replicas to join...\n");
+                    listener.wait();
+                }
+            }
+
+            System.out.println("[Client " + clientNumber + "] starting receiverThread");
+            receiverThread.start();
+            senderThread.start();
+        } catch (SpreadException |
+                 UnknownHostException |
+                 InterruptedException e
+        ) {
+            if (e instanceof SpreadException) {
+                if (e.getCause() instanceof SocketException && Objects.equals(((SpreadException) e).getMessage(), "Broken pipe")) {
+                    try {
+                        connection.disconnect();
+                        connect();
+                    } catch (SpreadException spreadException) {
+                        throw new RuntimeException();
+                    }
+                }
+            } else {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -139,10 +203,57 @@ public class Client {
         return "";
     }
 
-
     public List<String> memberInfo() throws Exception {
         return List.of();
     }
 
+    public void getHistory() { // don't think this is right
+        /*int start = this.orderCounter.get() - this.executedList.size();
+        for (int i = this.orderCounter.get(); i < this.executedList.size(); i++) {
+            print(i + ". " + this.executedList.get(i).command);
+        }*/
+    }
 
+    public void exit() {
+        try {
+            print("Leaving spread group...");
+            group.leave();
+            print("Removing listener");
+            connection.remove(listener);
+            print("Disconnecting spread server...");
+            connection.disconnect();
+        } catch (SpreadException e) {
+            print("Exiting environment...");
+            System.exit(0);
+        }
+    }
+
+    private void sendMessage(Serializable object) throws SpreadException {
+        SpreadMessage message = new SpreadMessage();
+        message.addGroup(group);
+        message.setFifo();
+        message.setObject(object);
+
+        if (message.isMembership()) {
+            message.setServiceType(16128); // membership message
+            System.out.println("[Client " + clientNumber + "] this is a membership message");
+            connection.multicast(message);
+            listener.membershipMessageReceived(message);
+        } else {
+            message.setServiceType(4194304); // regular message
+            //System.out.println("[Client " + clientNumber + "] this is NOT a membership message");
+            //connection.multicast(message);
+            listener.regularMessageReceived(message);
+        }
+    }
+
+    public void print(String message) {
+        try {
+            sendMessage("--> [Client " + clientNumber + "] " + message);
+        } catch (SpreadException e) {
+            System.out.println("Something went wrong, could not send message: ");
+            e.printStackTrace();
+            //System.out.println("[Client " + clientNumber + "] " + message);
+        }
+    }
 }

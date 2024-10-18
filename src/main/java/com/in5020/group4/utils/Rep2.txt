@@ -1,34 +1,38 @@
 memberInfo
 getSyncedBalance
 getQuickBalance
-deposit 100
-checkTxStatus
+deposit 70
+checkTxStatus Rep2 0
 getSyncedBalance
 getQuickBalance
-deposit 100
+deposit 130
 getQuickBalance
-sleep 10
+sleep 5
 getSyncedBalance
-addInterest 10
+addInterest 5
 getSyncedBalance
-deposit 100
-deposit 50
+deposit 110
 deposit 40
-deposit 30
+deposit 50
 deposit 20
-deposit 10
-addInterest 10
+deposit 30
+deposit 100
+addInterest 3
+sleep 6
 getSyncedBalance
 getQuickBalance
-deposit 100
-deposit 100
-addInterest 20
-checkTxStatus
+deposit 120
+deposit 130
+addInterest 10
+checkTxStatus Rep2 11
 memberInfo
 getHistory
 cleanHistory
-deposit 100
-sleep 8
+deposit 90
+sleep 7
+getSyncedBalance
+getQuickBalance
+sleep 30
 getSyncedBalance
 getQuickBalance
 getHistory

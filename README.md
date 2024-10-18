@@ -6,21 +6,25 @@
 
 <b>Todo:</b>
 - [x] Client connects to spread server using listener - Caroline
-- [ ] Client should join a group whose name is `<account name>` - Caroline
-- [ ] Client should wait until all members have joined the group - Caroline
-- [ ] File reader - Caroline
-- [ ] Implement file reader - Caroline
-- [ ] getQuickBalance - Liang
+- [x] Client should join a group whose name is `<account name>` - Caroline
+- [x] Client should wait until all members have joined the group - Caroline
+- [x] File reader - Caroline
+- [x] Implement file reader - Caroline
+- [x] getQuickBalance - Liang
 - [ ] getSyncedBalance (naive implementation) - TBD
 - [ ] getSyncedBalance (correct implementation) - TBD
-- [ ] deposit <amount> - Liang
-- [ ] addInterest <percent> - Liang
+- [x] deposit <amount> - Liang
+- [x] addInterest <percent> - Liang
 - [ ] getHistory - Liang
 - [ ] checkTxStatus <Transaction.unique_id> - Caroline
-- [ ] cleanHistory - Caroline
+- [x] cleanHistory - Caroline
 - [ ] memberInfo - Caroline
-- [ ] sleep <duration> - Liang
-- [ ] exit - Liang
+- [x] sleep <duration> - Liang
+- [x] exit - Liang
+- [ ] If the optional argument of [file name] is not present, the client will
+  interactively accept commands from the user through a command line. If [file name] is
+  present, then the client will perform batch processing of commands that it will read from [file
+  name] every T seconds and exit. T is a random float number between 0.5-1.5s.
 - [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
 
@@ -46,7 +50,7 @@ spread [-l y/n] [-n proc_name] [-c config_file]
 <b>Note: </b> enabling logging made the server Exit caused by Alarm(EXIT) on my machine.
 
 ### About the spread library
-It consists of 12 classes. The imporant ones are:
+It consists of 12 classes. The important ones are:
 1. SpreadConnection – represents a connection to the spread daemon
 2. SpreadGroup – represents the spread group
 3. SpreadMessage – represents message that is either sent or received

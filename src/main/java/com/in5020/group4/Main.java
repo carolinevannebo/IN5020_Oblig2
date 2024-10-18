@@ -1,9 +1,18 @@
 package com.in5020.group4;
 
 import com.in5020.group4.client.Client;
+import com.in5020.group4.utils.TxtFileReader;
+import spread.SpreadGroup;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.sleep;
 
 /** For this assignment you have to use the Spread toolkit to build a replicated banking system.
  *  The system architecture will consist of
@@ -14,22 +23,40 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 
 public class Main {
-    static Client client = new Client();
+    private static final AtomicInteger outstandingCounter = new AtomicInteger(0);
+    //private static AtomicInteger orderCounter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException {
         String serverAddress = "127.0.0.1";
-        String accountName = "groupXX";
-        int numberOfReplicas = 2;
+        String accountName = "replicaGroup";
+        int numberOfReplicas = 3;
 
         Listener listener = new Listener(numberOfReplicas);
+        SpreadGroup group = new SpreadGroup();
         for (int i = 1; i <= numberOfReplicas; i++) {
+            int finalI = i;
             new Thread(() -> {
-                Client client = new Client(serverAddress, accountName, listener);
-                client.connect();
+                try {
+                    File inputFile = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/Rep"+finalI+".txt");
+
+                    Client client = new Client(serverAddress, accountName, listener, group, finalI);
+                    client.connect();
+
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+                    String line = "";
+                    while ((line = bufferedReader.readLine()) != null) {
+                        Transaction transaction = new Transaction(outstandingCounter.incrementAndGet(), line);
+                        client.addOutStandingCollection(transaction);
+                    }
+                } catch (/*Interrupted*/Exception e) {
+                    throw new RuntimeException(e);
+                }
             }).start();
         }
+        sleep(1000000);
     }
 
+    // todo: move logic into client
     private static void runInput(String input) throws InterruptedException {
         if (input.equalsIgnoreCase("getQuickBalance")) {
             System.out.println("\n" + input);
