@@ -27,6 +27,27 @@ public class Listener implements AdvancedMessageListener {
         String msg = null;
         try {
             msg = (String) message.getObject();
+
+            if (message.isRegular()) {
+                //RegularMsgType regMsg = (RegularMsgType) msg;
+                print("Regular message: " + message.getType());
+                /*switch (message.getType()) {
+                    case ACTION:
+                        event = Event.ACTION;
+                        break;
+                    case STATE:
+                        log.debug(">>> got state msg " + regMsg.getSender());
+                        event = Event.STATE_MESS;
+                        break;
+                    case CPC:
+                        log.debug(">>> got cpc msg " + regMsg.getSender());
+                        event = Event.CPC_MESS;
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown message type: " + regMsg.getMsgType());
+                }*/
+            }
+
         } catch (SpreadException e) {
             throw new RuntimeException(e);
         }

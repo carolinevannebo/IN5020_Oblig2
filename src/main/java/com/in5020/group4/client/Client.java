@@ -42,7 +42,7 @@ public class Client {
         /*this.group = group;*/
         this.clientNumber = clientNumber;
 
-        this.receiverThread = new Thread(() -> {
+        this.receiverThread = new Thread(() -> { // todo: not working - fix it
             System.out.println("[Client " + clientNumber + "] receiverThread running");
             while (true) {
                 try {
