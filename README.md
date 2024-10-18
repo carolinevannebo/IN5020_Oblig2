@@ -9,13 +9,13 @@
 - [x] Client should join a group whose name is `<account name>` - Caroline
 - [x] Client should wait until all members have joined the group - Caroline
 - [x] File reader - Caroline
-- [ ] Implement file reader - Caroline
+- [x] Implement file reader - Caroline
 - [x] getQuickBalance - Liang
 - [ ] getSyncedBalance (naive implementation) - TBD
-- [x] getSyncedBalance (correct implementation) - TBD
+- [ ] getSyncedBalance (correct implementation) - TBD
 - [x] deposit <amount> - Liang
 - [x] addInterest <percent> - Liang
-- [x] getHistory - Liang
+- [ ] getHistory - Liang
 - [ ] checkTxStatus <Transaction.unique_id> - Caroline
 - [x] cleanHistory - Caroline
 - [ ] memberInfo - Caroline

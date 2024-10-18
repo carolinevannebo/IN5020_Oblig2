@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TxtFileReader {
-    private static final File file = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/input.txt");
+    private final File file;// = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/input.txt");
     private static final List<String> queries = new ArrayList<>();
 
-    public static List<String> getQueries() {
+    public TxtFileReader(File file) {
+        this.file = file;
+    }
+
+    public List<String> getQueries() {
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(this.file));
             String line = "";
             while ((line = bufferedReader.readLine()) != null) {
                 queries.add(line);

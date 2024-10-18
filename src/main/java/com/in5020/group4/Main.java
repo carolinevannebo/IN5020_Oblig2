@@ -3,10 +3,12 @@ package com.in5020.group4;
 import com.in5020.group4.client.Client;
 import com.in5020.group4.utils.TxtFileReader;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 
 /** For this assignment you have to use the Spread toolkit to build a replicated banking system.
@@ -27,11 +29,14 @@ public class Main {
         int numberOfReplicas = 3;
 
         Listener listener = new Listener(numberOfReplicas);
-        List<String> queries = TxtFileReader.getQueries();
         for (int i = 1; i <= numberOfReplicas; i++) {
             int finalI = i;
             new Thread(() -> {
                 try {
+                    File inputFile = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/Rep"+finalI+".txt");
+                    TxtFileReader reader = new TxtFileReader(inputFile);
+                    List<String> queries = reader.getQueries();
+
                     Client client = new Client(serverAddress, accountName, listener, finalI);
                     client.connect();
 
@@ -114,7 +119,6 @@ public class Main {
 
         } else if (input.equalsIgnoreCase("exit")) {
             client.exit();
-            //System.exit(0);
         }
     }
 }
