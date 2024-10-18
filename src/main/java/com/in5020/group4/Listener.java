@@ -13,13 +13,6 @@ public class Listener implements AdvancedMessageListener {
 
     public Listener(int numberOfReplicas) {
         this.numberOfReplicas = numberOfReplicas;
-        /*new Thread(() -> {
-            if (!messages.isEmpty()) {
-                for (String message : messages) {
-                    print(message);
-                }
-            }
-        }).start();*/
     }
 
     @Override
