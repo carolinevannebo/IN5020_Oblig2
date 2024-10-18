@@ -41,10 +41,10 @@ public class Main {
                     client.connect();
 
                     for (String query : queries) {
-                        //todo: if input matches client id
-                        runInput(client, query);
+                        client.print(query);
+                        //runInput(client, query);
                     }
-                } catch (InterruptedException e) {
+                } catch (/*Interrupted*/Exception e) {
                     throw new RuntimeException(e);
                 }
             }).start();

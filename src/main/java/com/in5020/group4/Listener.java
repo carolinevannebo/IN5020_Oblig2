@@ -23,8 +23,6 @@ public class Listener implements AdvancedMessageListener {
             throw new RuntimeException(e);
         }
         print(msg);
-        //print("message type: " + message.getServiceType() + "message:" + msg);
-        //print("message type: " + message.getType());
     }
 
     @Override
