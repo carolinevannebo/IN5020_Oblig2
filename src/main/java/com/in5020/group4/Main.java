@@ -1,17 +1,16 @@
 package com.in5020.group4;
 
 import com.in5020.group4.client.Client;
-import com.in5020.group4.utils.TxtFileReader;
+import com.in5020.group4.listener.AdvancedListener;
+import com.in5020.group4.listener.BasicListener;
 import spread.SpreadGroup;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 
 /** For this assignment you have to use the Spread toolkit to build a replicated banking system.
@@ -29,25 +28,23 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         String serverAddress = "127.0.0.1";
         String accountName = "replicaGroup";
-        int numberOfReplicas = 3;
+        int numberOfReplicas = 2;
 
-        Listener listener = new Listener(numberOfReplicas);
-        SpreadGroup group = new SpreadGroup();
+        AdvancedListener advancedListener = new AdvancedListener(numberOfReplicas);
         for (int i = 1; i <= numberOfReplicas; i++) {
             int finalI = i;
             String repName = "Rep" + finalI;
             new Thread(() -> {
                 try {
                     File inputFile = new File(System.getProperty("user.dir")+"/src/main/java/com/in5020/group4/utils/"+repName+".txt");
-
-                    Client client = new Client(serverAddress, accountName, listener, group, finalI);
-                    client.connect();
+                    Client client = new Client(serverAddress, accountName, finalI, numberOfReplicas, advancedListener);
 
                     BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
                     String line = "";
                     while ((line = bufferedReader.readLine()) != null) {
                         Transaction transaction = new Transaction(repName, line);
                         client.addOutStandingCollection(transaction);
+                        outstandingCounter.incrementAndGet();
                     }
                 } catch (/*Interrupted*/Exception e) {
                     throw new RuntimeException(e);
