@@ -12,7 +12,7 @@ public class AdvancedListener implements AdvancedMessageListener {
     private SpreadGroup[] members;
     private int numberOfReplicas = 2;
     public boolean allReplicasJoined = false;
-    private final List<String> messages = new ArrayList<>();
+    private final List<String> memberShipMessages = new ArrayList<>();
 
     public AdvancedListener() {}
     public AdvancedListener(int numberOfReplicas) {
@@ -20,19 +20,48 @@ public class AdvancedListener implements AdvancedMessageListener {
     }
 
     @Override
-    public synchronized void regularMessageReceived(SpreadMessage message) {
-        print("Regular Message Received");
+    public synchronized void regularMessageReceived(SpreadMessage spreadMessage) {
+        print("Regular Message Received: " + spreadMessage);
     }
 
     @Override
     public synchronized void membershipMessageReceived(SpreadMessage spreadMessage) {
-        print("Membership Message Received");
-        ReplicatedStateMachine.replicas = spreadMessage.getMembershipInfo().getMembers();
-        //synchronized (ReplicatedStateMachine.group) {
+        print("Membership Message Received, old length: " + memberShipMessages.size());
+        try {
+            memberShipMessages.add((String) spreadMessage.getObject());
+            print("new: " + memberShipMessages.size());
+        } catch (SpreadException e) {
+            throw new RuntimeException(e);
+        }
+
+        //ReplicatedStateMachine.replicas = spreadMessage.getMembershipInfo().getMembers();
+        //synchronized (ReplicatedStateMachine.connection){
+            //if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
+            if (memberShipMessages.size() >= ReplicatedStateMachine.numberOfReplicas) {
+                print("Got remaining replicas, notifying...");
+                notifyAll();
+            }
+        //}
+
+        /*synchronized (ReplicatedStateMachine.group) {
             if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
                 ReplicatedStateMachine.group.notifyAll();
             }
-        //}
+        }
+
+        if (ReplicatedStateMachine.replicas.length > ReplicatedStateMachine.numberOfReplicas) {
+            SpreadMessage message = new SpreadMessage();
+            message.addGroup(ReplicatedStateMachine.group);
+            message.setFifo();
+
+            try {
+                message.setObject("Joined: " + spreadMessage.getMembershipInfo().getJoined());
+                ReplicatedStateMachine.connection.multicast(message);
+            } catch (SpreadException e) {
+                e.printStackTrace();
+            }
+        }*/
+
         //notifyAll();
 
         /*String msg = null;

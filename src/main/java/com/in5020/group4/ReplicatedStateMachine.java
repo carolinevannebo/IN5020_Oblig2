@@ -28,12 +28,10 @@ public class ReplicatedStateMachine {
     private static Client replica;
     private static String replicaName;
 
-    private static SpreadConnection connection;
+    public static final SpreadConnection connection = new SpreadConnection();
     private static BasicListener basicListener;
     private static final AdvancedListener advancedListener = new AdvancedListener();
     public static final SpreadGroup group = new SpreadGroup();
-
-    private static final List<SpreadMessage> testingMessages = new ArrayList<>();
 
     private static ScheduledExecutorService scheduledExecutor;
 
@@ -65,8 +63,8 @@ public class ReplicatedStateMachine {
         //after outstandingcollection is empty: stopExecutor();
     }
 
-    private synchronized static void connect() {
-        connection = new SpreadConnection();
+    private static void connect() {
+        //connection = new SpreadConnection();
         basicListener = new BasicListener(connection, accountName);
 
         Random rand = new Random();
@@ -77,34 +75,44 @@ public class ReplicatedStateMachine {
             connection.connect(InetAddress.getByName(serverAddress),
                     8000, String.valueOf(id), false, true);
 
-            joinGroup();
-            SpreadMessage message = new SpreadMessage();
-            message.addGroup(group);
-            message.setFifo();
-            message.setObject("testing");
-            testingMessages.add(message);
-            connection.multicast(testingMessages.toArray(new SpreadMessage[0]));
-            advancedListener.membershipMessageReceived(message);
+//            joinGroup();
+//            SpreadMessage message = new SpreadMessage();
+//            message.addGroup(group);
+//            message.setFifo();
+//            message.setObject("testing");
+//            connection.multicast(message);
+//            advancedListener.membershipMessageReceived(message);
 
+            if (connection.poll()) {
+                print("there are messages waiting on this connection");
+            } else {
+                print("there are NOT messages waiting on this connection");
+            }
+            synchronized (advancedListener) {
+                while (replicas.length < numberOfReplicas) {
+                    print("Connection waiting for " + numberOfReplicas + " total replicas to join");
+                    advancedListener.wait();
+                }
+            }
             /*synchronized (group) {
                 if (replicas.length < numberOfReplicas) {
                     print("Group waiting for " + numberOfReplicas + " total replicas to join");
                     group.wait();
                 }
             }*/
-            synchronized (advancedListener) { // commented out because wait made while holding two locks
+            /*synchronized (advancedListener) { // commented out because wait made while holding two locks
                 while (replicas.length < numberOfReplicas) {
                     //replicas = connection.receive().getGroups(); // TESTING
                     advancedListener.wait();
                 }
-            }
+            }*/
             print("Done waiting");
-        } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
+        } catch (SpreadException | UnknownHostException | InterruptedException /*| InterruptedIOException*/ e) {
             e.printStackTrace();
         }
     }
 
-    private synchronized static void joinGroup() throws SpreadException, InterruptedIOException {
+    private static void joinGroup() throws SpreadException, InterruptedIOException {
         group.join(connection, accountName);
         replicaName = connection.getPrivateGroup().toString();
         replica.sayHello(replicaName);
@@ -173,7 +181,6 @@ public class ReplicatedStateMachine {
         message.addGroup(group);
         message.setFifo();
         message.setObject(transaction);
-        testingMessages.add(message); // testing
         connection.multicast(message);
     }
 
