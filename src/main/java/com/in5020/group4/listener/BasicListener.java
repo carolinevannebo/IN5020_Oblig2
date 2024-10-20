@@ -1,7 +1,6 @@
 package com.in5020.group4.listener;
 
 import com.in5020.group4.Transaction;
-import com.in5020.group4.client.Client;
 import com.in5020.group4.utils.MessageType;
 import spread.*;
 

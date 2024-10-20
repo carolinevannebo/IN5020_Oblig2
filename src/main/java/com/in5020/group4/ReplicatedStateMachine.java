@@ -2,10 +2,7 @@ package com.in5020.group4;
 
 import com.in5020.group4.listener.AdvancedListener;
 import com.in5020.group4.listener.BasicListener;
-import spread.SpreadConnection;
-import spread.SpreadException;
-import spread.SpreadGroup;
-import spread.SpreadMessage;
+import spread.*;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -18,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ReplicatedStateMachine {
+public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
     private static String fileName;
     private static String serverAddress;
     private static String accountName;
@@ -29,13 +26,14 @@ public class ReplicatedStateMachine {
     private static String replicaName;
 
     public static final SpreadConnection connection = new SpreadConnection();
-    private static BasicListener basicListener;
-    private static final AdvancedListener advancedListener = new AdvancedListener();
+    //private static BasicListener basicListener;
+    //private static final AdvancedListener advancedListener = new AdvancedListener();
+    //private AdvancedListener advancedListener;
     public static final SpreadGroup group = new SpreadGroup();
 
     private static ScheduledExecutorService scheduledExecutor;
 
-    public synchronized static void main(String[] args) {
+    public ReplicatedStateMachine(String[] args) {
         replicas =  new SpreadGroup[0];
         fileName = null; // remember to handle filename by coding clients or terminal
         replica = new Client(0.0,
@@ -56,63 +54,89 @@ public class ReplicatedStateMachine {
             numberOfReplicas = 2;
         }
 
+        print("fileName: " + fileName);
+        print("serverAddress: " + serverAddress);
+        print("accountName: " + accountName);
+        print("numberOfReplicas: " + numberOfReplicas);
+
         connect();
         createExecutor();
         startExecutor();
         readInput();
-        //after outstandingcollection is empty: stopExecutor();
+        //after outstandingCollection is empty: stopExecutor();
     }
 
-    private static void connect() {
-        //connection = new SpreadConnection();
-        basicListener = new BasicListener(connection, accountName);
+    public static void main(String[] args) {
+        new Thread(() -> {
+            new ReplicatedStateMachine(args);
+        }).start();
+    }
 
+    private synchronized void connect() {
         Random rand = new Random();
         int id = rand.nextInt();
         try {
-            connection.add(advancedListener);
-            connection.add(basicListener);
+            print("connecting");
             connection.connect(InetAddress.getByName(serverAddress),
                     8000, String.valueOf(id), false, true);
+            print("connected");
 
-//            joinGroup();
-//            SpreadMessage message = new SpreadMessage();
-//            message.addGroup(group);
-//            message.setFifo();
-//            message.setObject("testing");
-//            connection.multicast(message);
-//            advancedListener.membershipMessageReceived(message);
+//            updateReplicas.start();
 
-            if (connection.poll()) {
-                print("there are messages waiting on this connection");
-            } else {
-                print("there are NOT messages waiting on this connection");
+            print("adding listener");
+            connection.add(AdvancedListener.getInstance());
+            print("listener added");
+
+            print("joining group");
+            joinGroup();
+            print("joined group");
+
+            SpreadMessage message = new SpreadMessage();
+            message.addGroup(group);
+            message.setFifo();
+            message.setObject("first message");
+            connection.multicast(message);
+            replicas = message.getGroups();
+//            replicas = message.getMembershipInfo().getMembers();
+
+            print("waiting, current replicas length: " + replicas.length);
+            if (replicas.length < numberOfReplicas) {
+                print("waiting");
+                wait();
+                print("Done waiting");
             }
-            synchronized (advancedListener) {
-                while (replicas.length < numberOfReplicas) {
-                    print("Connection waiting for " + numberOfReplicas + " total replicas to join");
-                    advancedListener.wait();
-                }
-            }
-            /*synchronized (group) {
-                if (replicas.length < numberOfReplicas) {
-                    print("Group waiting for " + numberOfReplicas + " total replicas to join");
-                    group.wait();
-                }
-            }*/
-            /*synchronized (advancedListener) { // commented out because wait made while holding two locks
-                while (replicas.length < numberOfReplicas) {
-                    //replicas = connection.receive().getGroups(); // TESTING
-                    advancedListener.wait();
-                }
-            }*/
-            print("Done waiting");
-        } catch (SpreadException | UnknownHostException | InterruptedException /*| InterruptedIOException*/ e) {
+        } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void joinGroup() throws SpreadException, InterruptedIOException {
+//    Thread updateReplicas = new Thread(() -> {
+//        while (true) {
+//            SpreadMessage message = null;
+//            try {
+//                message = connection.receive();
+//                if (message.isIncoming()) {
+//                    print("Incoming message");
+//                }
+//                replicas = connection.receive().getGroups();
+//                print("replicas: " + replicas.length);
+//                if (replicas.length >= numberOfReplicas) {
+//                    notifyAll();
+//                }
+//            } catch (SpreadException | InterruptedIOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//    });
+
+    public void handleMembershipChange(SpreadGroup[] members) {
+        print("incoming new membership");
+        if (replicas != null && replicas.length >= numberOfReplicas) {
+            replicas = members;
+        }
+    }
+
+    private void joinGroup() throws SpreadException, InterruptedIOException {
         group.join(connection, accountName);
         replicaName = connection.getPrivateGroup().toString();
         replica.sayHello(replicaName);
@@ -122,7 +146,7 @@ public class ReplicatedStateMachine {
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
     }
 
-    private synchronized static void startExecutor() {
+    private synchronized void startExecutor() {
         scheduledExecutor.scheduleAtFixedRate(() -> {
             Collection<Transaction> outStandingCollection = replica.getOutstandingCollection();
             if (!outStandingCollection.isEmpty()) {
@@ -176,7 +200,7 @@ public class ReplicatedStateMachine {
         }
     }
 
-    private synchronized static void sendMessage(Transaction transaction) throws SpreadException {
+    private synchronized void sendMessage(Transaction transaction) throws SpreadException {
         SpreadMessage message = new SpreadMessage();
         message.addGroup(group);
         message.setFifo();
@@ -187,4 +211,24 @@ public class ReplicatedStateMachine {
     private static void print(String message) {
         System.out.println("[ReplicatedStateMachine]: " + message);
     }
+
+//    @Override
+//    public void regularMessageReceived(SpreadMessage spreadMessage) {
+//        print("Regular message received: " + spreadMessage);
+//    }
+//
+//    @Override
+//    public void membershipMessageReceived(SpreadMessage spreadMessage) {
+//        print("Membership message received");
+//        MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
+//        if (membershipInfo.isCausedByJoin()) {
+//            replicas = membershipInfo.getMembers();
+//            //SpreadGroup groupMembers = membershipInfo.getJoined();
+//            print("Amount of joined replicas: " + replicas.length);
+//        }
+//        if (replicas.length >= numberOfReplicas) {
+//            print("All replicas joined, notifying");
+//            notifyAll();
+//        }
+//    }
 }
