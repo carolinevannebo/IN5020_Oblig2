@@ -32,6 +32,11 @@
 <b>Note2:</b> no need to consider the happened-before relationship of every single command
 between clients. Only consider the consistent view.
 
+### How to set up SSH tunnel example
+```
+ssh -L 8001:localhost:8000 caroline@172.20.10.14
+```
+Please note that the university's network will block the SSH tunnel, use a hotspot instead
 
 ### How to run spread server
 1. Navigate to `spread-src-4.0.0/`

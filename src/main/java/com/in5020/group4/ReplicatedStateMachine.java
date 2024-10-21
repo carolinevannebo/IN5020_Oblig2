@@ -67,26 +67,25 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
     }
 
     public static void main(String[] args) {
-        new Thread(() -> {
+        //new Thread(() -> {
             new ReplicatedStateMachine(args);
-        }).start();
+        //}).start();
     }
 
     private synchronized void connect() {
         Random rand = new Random();
         int id = rand.nextInt();
         try {
+            print("adding listener");
+            connection.add(AdvancedListener.getInstance());
+            print("listener added");
+
             print("connecting");
             connection.connect(InetAddress.getByName(serverAddress),
                     8000, String.valueOf(id), false, true);
             print("connected");
 
 //            updateReplicas.start();
-
-            print("adding listener");
-            connection.add(AdvancedListener.getInstance());
-            print("listener added");
-
             print("joining group");
             joinGroup();
             print("joined group");
@@ -100,14 +99,19 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
 //            replicas = message.getMembershipInfo().getMembers();
 
             print("waiting, current replicas length: " + replicas.length);
-            if (replicas.length < numberOfReplicas) {
-                print("waiting");
-                wait();
-                print("Done waiting");
+            while (replicas.length < numberOfReplicas) {
+                continue;
+                //print("waiting");
+                //wait();
+                //print("Done waiting");
             }
-        } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
+        } catch (SpreadException | UnknownHostException /*| InterruptedException */| InterruptedIOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void initSSHTunnel(String host) {
+
     }
 
 //    Thread updateReplicas = new Thread(() -> {
