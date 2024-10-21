@@ -96,32 +96,18 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
             message.setObject("first message");
             connection.multicast(message);
             replicas = message.getGroups();
-//            replicas = message.getMembershipInfo().getMembers();
 
             print("waiting, current replicas length: " + replicas.length);
-            // synchronized should not be used
             synchronized (group) {
                 if (replicas.length < numberOfReplicas) {
                     group.wait();
                 }
             }
-//                while (replicas.length < numberOfReplicas) {
-//                    if (connection.poll()) {
-//                        replicas = connection.receive().getGroups();
-//                    }
-//                    //print("waiting");
-//                    wait();
-//                    //print("Done waiting");
-//                }
 
-            print("done waiting");
+            print("done waiting, current replicas length: " + replicas.length);
         } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void initSSHTunnel(String host) {
-
     }
 
 //    Thread updateReplicas = new Thread(() -> {
