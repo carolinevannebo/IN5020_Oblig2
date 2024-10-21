@@ -4,6 +4,6 @@ package com.in5020.group4.utils;
 public enum TransactionType {
     DEPOSIT,
     INTEREST,
-    //INITIALIZE_BALANCE,
-    SYNCED_BALANCE
+    SYNCED_BALANCE,
+    NONE
 }
