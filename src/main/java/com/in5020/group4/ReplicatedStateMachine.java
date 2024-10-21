@@ -1,7 +1,7 @@
 package com.in5020.group4;
 
+import com.in5020.group4.client.Client;
 import com.in5020.group4.listener.AdvancedListener;
-import com.in5020.group4.listener.BasicListener;
 import spread.*;
 
 import java.io.*;
@@ -12,10 +12,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
+public class ReplicatedStateMachine {
     private static String fileName;
     private static String serverAddress;
     private static String accountName;
@@ -25,10 +23,8 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
     private static Client replica;
     private static String replicaName;
 
+    public static AdvancedListener advancedListener;
     public static final SpreadConnection connection = new SpreadConnection();
-    //private static BasicListener basicListener;
-    //private static final AdvancedListener advancedListener = new AdvancedListener();
-    //private AdvancedListener advancedListener;
     public static final SpreadGroup group = new SpreadGroup();
 
     private static ScheduledExecutorService scheduledExecutor;
@@ -67,9 +63,7 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
     }
 
     public static void main(String[] args) {
-        //new Thread(() -> {
-            new ReplicatedStateMachine(args);
-        //}).start();
+        new ReplicatedStateMachine(args);
     }
 
     private void connect() {
@@ -77,7 +71,8 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
         int id = rand.nextInt();
         try {
             print("adding listener");
-            connection.add(new AdvancedListener());
+            advancedListener = new AdvancedListener();
+            connection.add(advancedListener);
             print("listener added");
 
             print("connecting");
@@ -85,7 +80,6 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
                     4803, String.valueOf(id), false, true);
             print("connected");
 
-//            updateReplicas.start();
             print("joining group");
             joinGroup();
             print("joined group");
@@ -107,32 +101,6 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
             print("done waiting, current replicas length: " + replicas.length);
         } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
             e.printStackTrace();
-        }
-    }
-
-//    Thread updateReplicas = new Thread(() -> {
-//        while (true) {
-//            SpreadMessage message = null;
-//            try {
-//                message = connection.receive();
-//                if (message.isIncoming()) {
-//                    print("Incoming message");
-//                }
-//                replicas = connection.receive().getGroups();
-//                print("replicas: " + replicas.length);
-//                if (replicas.length >= numberOfReplicas) {
-//                    notifyAll();
-//                }
-//            } catch (SpreadException | InterruptedIOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//    });
-
-    public void handleMembershipChange(SpreadGroup[] members) {
-        print("incoming new membership");
-        if (replicas != null && replicas.length >= numberOfReplicas) {
-            replicas = members;
         }
     }
 
@@ -208,27 +176,21 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
         connection.multicast(message);
     }
 
+    private void exit() {
+        try {
+            print("Leaving spread group...");
+            group.leave();
+            print("Removing listener...");
+            connection.remove(advancedListener);
+            print("Disconnecting spread server...");
+            connection.disconnect();
+        } catch (SpreadException e) {
+            print("Exiting environment...");
+            System.exit(0);
+        }
+    }
+
     private static void print(String message) {
         System.out.println("[ReplicatedStateMachine]: " + message);
     }
-
-//    @Override
-//    public void regularMessageReceived(SpreadMessage spreadMessage) {
-//        print("Regular message received: " + spreadMessage);
-//    }
-//
-//    @Override
-//    public void membershipMessageReceived(SpreadMessage spreadMessage) {
-//        print("Membership message received");
-//        MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
-//        if (membershipInfo.isCausedByJoin()) {
-//            replicas = membershipInfo.getMembers();
-//            //SpreadGroup groupMembers = membershipInfo.getJoined();
-//            print("Amount of joined replicas: " + replicas.length);
-//        }
-//        if (replicas.length >= numberOfReplicas) {
-//            print("All replicas joined, notifying");
-//            notifyAll();
-//        }
-//    }
 }

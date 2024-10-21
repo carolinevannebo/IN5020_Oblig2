@@ -1,7 +1,7 @@
 package com.in5020.group4.listener;
 
 import com.in5020.group4.Transaction;
-import com.in5020.group4.utils.MessageType;
+import com.in5020.group4.utils.TransactionType;
 import spread.*;
 
 public class BasicListener implements BasicMessageListener {
@@ -26,7 +26,7 @@ public class BasicListener implements BasicMessageListener {
                     SpreadMessage msg = new SpreadMessage();
                     Transaction transaction = new Transaction();
                     transaction.setBalance(1000); // test
-                    transaction.setType(MessageType.INITIALIZE_BALANCE);
+                    transaction.setType(TransactionType.INITIALIZE_BALANCE);
                     try {
                         msg.setObject(transaction);
                         //msg.setFifo();
@@ -44,6 +44,6 @@ public class BasicListener implements BasicMessageListener {
     }
 
     private void print(String message) {
-        System.out.println("[Listener] " + message);
+        System.out.println("[BasicListener] " + message);
     }
 }

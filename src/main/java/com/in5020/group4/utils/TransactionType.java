@@ -1,6 +1,7 @@
 package com.in5020.group4.utils;
 
-public enum MessageType {
+// todo: fix :)
+public enum TransactionType {
     DEPOSIT,
     INTEREST,
     INITIALIZE_BALANCE

@@ -1,6 +1,6 @@
 package com.in5020.group4;
 
-import com.in5020.group4.utils.MessageType;
+import com.in5020.group4.utils.TransactionType;
 
 import java.io.Serializable;
 
@@ -9,7 +9,7 @@ public class Transaction implements Serializable {
     public String uniqueId;
     public String command;
     private double balance;
-    private MessageType type;
+    private TransactionType type;
 
     public Transaction() {}
     public Transaction(String uniqueId, String command) {
@@ -41,11 +41,11 @@ public class Transaction implements Serializable {
         return balance;
     }
 
-    public void setType(MessageType type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 
-    public MessageType getType() {
+    public TransactionType getType() {
         return type;
     }
 }
