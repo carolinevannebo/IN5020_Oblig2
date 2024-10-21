@@ -17,10 +17,15 @@ public class AdvancedListener implements AdvancedMessageListener {
     @Override
     public void regularMessageReceived(SpreadMessage spreadMessage) {
         System.out.println("[Listener]: regular message received");
-        MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
-        ReplicatedStateMachine.replicas = membershipInfo.getMembers();
-        if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
-            notifyAll();
+//        MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
+//        ReplicatedStateMachine.replicas = membershipInfo.getMembers();
+//        if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
+//            notifyAll();
+//        }
+        synchronized (ReplicatedStateMachine.group) {
+            if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
+                ReplicatedStateMachine.group.notifyAll();
+            }
         }
     }
 
@@ -29,8 +34,13 @@ public class AdvancedListener implements AdvancedMessageListener {
         System.out.println("[Listener]: Membership message received");
         MembershipInfo membershipInfo = spreadMessage.getMembershipInfo();
         ReplicatedStateMachine.replicas = membershipInfo.getMembers();
-        if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
-            notifyAll();
+//        if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
+//            notifyAll();
+//        }
+        synchronized (ReplicatedStateMachine.group) {
+            if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
+                ReplicatedStateMachine.group.notifyAll();
+            }
         }
     }
 //    private SpreadGroup[] members;

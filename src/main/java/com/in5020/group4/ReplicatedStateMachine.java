@@ -72,17 +72,17 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
         //}).start();
     }
 
-    private synchronized void connect() {
+    private void connect() {
         Random rand = new Random();
         int id = rand.nextInt();
         try {
             print("adding listener");
-            connection.add(AdvancedListener.getInstance());
+            connection.add(new AdvancedListener());
             print("listener added");
 
             print("connecting");
             connection.connect(InetAddress.getByName(serverAddress),
-                    8000, String.valueOf(id), false, true);
+                    4803, String.valueOf(id), false, true);
             print("connected");
 
 //            updateReplicas.start();
@@ -99,13 +99,23 @@ public class ReplicatedStateMachine /*implements AdvancedMessageListener*/ {
 //            replicas = message.getMembershipInfo().getMembers();
 
             print("waiting, current replicas length: " + replicas.length);
-            while (replicas.length < numberOfReplicas) {
-                continue;
-                //print("waiting");
-                //wait();
-                //print("Done waiting");
+            // synchronized should not be used
+            synchronized (group) {
+                if (replicas.length < numberOfReplicas) {
+                    group.wait();
+                }
             }
-        } catch (SpreadException | UnknownHostException /*| InterruptedException */| InterruptedIOException e) {
+//                while (replicas.length < numberOfReplicas) {
+//                    if (connection.poll()) {
+//                        replicas = connection.receive().getGroups();
+//                    }
+//                    //print("waiting");
+//                    wait();
+//                    //print("Done waiting");
+//                }
+
+            print("done waiting");
+        } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
             e.printStackTrace();
         }
     }
