@@ -37,7 +37,7 @@ public class Client {
         System.out.println("Synced Balance: " + this.balance);
     }
 
-    public void deposit(Transaction transaction, int amount) {
+    public void deposit(Transaction transaction, double amount) {
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst()
