@@ -151,7 +151,9 @@ public class ReplicatedStateMachine {
                 while (true) {
                     Scanner scanner = new Scanner(System.in);
                     String input = scanner.nextLine();
-                    print(input); // todo: parse
+                    //print(input); // todo: parse
+                    parseInput(input);
+                    // todo: pass to client and broadcast
                 }
             } else {
                 // read file input
@@ -160,11 +162,15 @@ public class ReplicatedStateMachine {
                 String line = "";
 
                 while ((line = bufferedReader.readLine()) != null) {
-                    print(line); // todo: parse
+                    //print(line); // todo: parse
+                    parseInput(line);
+                    // todo: pass to client and broadcast
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -176,7 +182,75 @@ public class ReplicatedStateMachine {
         connection.multicast(message);
     }
 
-    private void exit() {
+    // todo: update code to latest and refactor to switch case
+    private static void parseInput(String input) throws InterruptedException {
+        if (input.equalsIgnoreCase("getQuickBalance")) {
+            System.out.println("\n" + input);
+            System.out.println("Quick Balance: " + replica.getQuickBalance());
+
+        } else if (input.equalsIgnoreCase("getSyncedBalance")) {
+            System.out.println("\n" + input);
+            Transaction transaction = new Transaction();
+            transaction.setCommand(input);
+            transaction.setUniqueId(replicaName);
+            replica.getSyncedBalance(transaction);
+            replica.addOutstandingCollection(transaction);
+
+        } else if (input.matches("deposit \\d+(\\.\\d+)?")) {
+            System.out.println("\n" + input);
+            String[] args = input.split(" ");
+            int amount = Integer.parseInt(args[1]);
+            Transaction transaction = new Transaction();
+            transaction.setCommand(input);
+            transaction.setUniqueId(replicaName);
+            replica.deposit(transaction, amount);
+            replica.addOutstandingCollection(transaction);
+
+        } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
+            System.out.println("\n" + input);
+            String[] args = input.split(" ");
+            int percent = Integer.parseInt(args[1]);
+            Transaction transaction = new Transaction();
+            transaction.setCommand(input);
+            transaction.setUniqueId(replicaName);
+            replica.addInterest(transaction, percent);
+            replica.addOutstandingCollection(transaction);
+
+        } else if (input.equalsIgnoreCase("getHistory")) {
+            System.out.println("\n" + input);
+            System.out.println("\nExecuted List:");
+            for (Transaction transaction : replica.getExecutedTransactions()) {
+                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
+            }
+
+            System.out.println("\nOutstanding collection:");
+            for (Transaction transaction : replica.getOutstandingCollection()) {
+                System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
+            }
+
+        } else if (input.matches("checkTxStatus <.*>")) {
+            System.out.println("\n" + input);
+
+        } else if (input.equalsIgnoreCase("cleanHistory")) {
+            System.out.println("Executing clean history");
+            replica.setExecutedTransactions(new ArrayList<>());
+            replica.setOrderCounter(new AtomicInteger(0));
+
+        } else if (input.equalsIgnoreCase("memberInfo")) {
+            System.out.println("\n" + input);
+
+        } else if (input.matches("sleep \\d+")) {
+            String[] args = input.split(" ");
+            int time = Integer.parseInt(args[1]);
+            System.out.println("\nSleep: " + time + " seconds");
+            Thread.sleep(time);
+
+        } else if (input.equalsIgnoreCase("exit")) {
+            exit();
+        }
+    }
+
+    private static void exit() {
         try {
             print("Leaving spread group...");
             group.leave();
