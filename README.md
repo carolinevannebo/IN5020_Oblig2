@@ -32,15 +32,30 @@
 <b>Note2:</b> no need to consider the happened-before relationship of every single command
 between clients. Only consider the consistent view.
 
-### How to set up SSH tunnel example
+
+### Run configurations
+- Replica 1 `172.20.10.3 replicaGroup 3 Rep1.txt`
+- Replica 2 `172.20.10.3 replicaGroup 3 Rep2.txt`
+- Replica 3 `172.20.10.3 replicaGroup 3 Rep3.txt`
+
+<b>Note:</b> Check the ip on Ubuntu machine using `ifconfig` in terminal, then change the `spread.conf` file as needed.
+Example:
+```
+Spread_Segment 172.20.10.255:4804 { // broadcast e.g. 172.20.10.1 can be written as 172.20.10.255
+spreadserver 172.20.10.3 // inet
+}
+
+```
+
+### How to set up SSH tunnel example - not needed anymore please ignore
 ```
 ssh -L 8001:localhost:8000 caroline@172.20.10.14
 ```
 Please note that the university's network will block the SSH tunnel, use a hotspot instead
 
-### How to run spread server
+### How to run spread server on Ubuntu
 1. Navigate to `spread-src-4.0.0/`
-2. Run `./daemon/spread -n localhost -c ../spread.conf`
+2. Run `./daemon/spread -n spreadserver -c ../spread.conf`
 
 <b>Usage</b>
 ```
