@@ -166,6 +166,7 @@ public class ReplicatedStateMachine {
                     //print(line); // todo: parse
                     parseInput(line);
                     // todo: pass to client and broadcast
+                    Thread.sleep(1000);
                 }
             }
         } catch (IOException e) {
@@ -193,7 +194,7 @@ public class ReplicatedStateMachine {
             print("\n" + input);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(replicaName);
+            transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
 
             replica.getSyncedBalance(transaction);
             replica.addOutstandingCollection(transaction);
@@ -204,7 +205,7 @@ public class ReplicatedStateMachine {
 
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(replicaName);
+            transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
             transaction.setBalance(amount);
             transaction.setType(TransactionType.DEPOSIT);
 
@@ -217,7 +218,7 @@ public class ReplicatedStateMachine {
 
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
-            transaction.setUniqueId(replicaName);
+            transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
 
             replica.addInterest(transaction, percent);
             replica.addOutstandingCollection(transaction);
@@ -256,6 +257,8 @@ public class ReplicatedStateMachine {
 
     private static void exit() {
         try {
+            print("Stopping executor");
+            stopExecutor();
             print("Leaving spread group...");
             group.leave();
             print("Removing listener...");
