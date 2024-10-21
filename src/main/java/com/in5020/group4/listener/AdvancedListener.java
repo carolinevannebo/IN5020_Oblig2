@@ -50,6 +50,36 @@ public class AdvancedListener implements AdvancedMessageListener {
                 ReplicatedStateMachine.group.notifyAll();
             }
         }
+
+        if (ReplicatedStateMachine.allReplicasPresent) {
+            try {
+                Transaction transaction = new Transaction();
+                String msg = (String) spreadMessage.getObject();
+                String[] stringParts = msg.split(" ");
+                transaction.setUniqueId(stringParts[0] + stringParts[1]);
+                transaction.setCommand(stringParts[2]);
+                transaction.setBalance(Double.parseDouble(stringParts[3]));
+                transaction.setType(TransactionType.valueOf(stringParts[4]));
+                // todo: string array, str[0...3], use setters
+
+                print("Regular message received, Transaction: " + transaction);
+                switch (transaction.getType()) {
+                    case DEPOSIT -> {
+                        ReplicatedStateMachine.replica.deposit(transaction, transaction.getBalance());
+                        print("got notified to deposit from other replica");
+                    }
+                    case INTEREST -> print("got notified to interest from other replica");
+                    default -> print("Regular message received: " + transaction.toString());
+                }
+
+                if (transaction.getType() == TransactionType.DEPOSIT) {
+                    print("got notified to deposit from other replica");
+                    ReplicatedStateMachine.replica.deposit(transaction, transaction.getBalance());
+                }
+            } catch (SpreadException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private void print(String message) {

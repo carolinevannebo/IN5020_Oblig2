@@ -29,6 +29,7 @@ public class ReplicatedStateMachine {
     public static final SpreadGroup group = new SpreadGroup();
 
     private static ScheduledExecutorService scheduledExecutor;
+    public static boolean allReplicasPresent = false;
 
     public ReplicatedStateMachine(String[] args) {
         replicas =  new SpreadGroup[0];
@@ -98,7 +99,7 @@ public class ReplicatedStateMachine {
                     group.wait();
                 }
             }
-
+            allReplicasPresent = true;
             print("done waiting, current replicas length: " + replicas.length);
         } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
             e.printStackTrace();
@@ -251,7 +252,8 @@ public class ReplicatedStateMachine {
             print("\nSleep: " + time + " seconds");
             Thread.sleep(time);
         } else if (input.equalsIgnoreCase("exit")) {
-            exit();
+            print("would exit but not gonna na ah");
+            //exit();
         }
     }
 
