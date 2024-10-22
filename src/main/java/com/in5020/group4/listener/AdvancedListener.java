@@ -54,12 +54,13 @@ public class AdvancedListener implements AdvancedMessageListener {
                 state should be consistent across all the replicas: the balance of all replicas
                 should be the same.*/
 
-            SpreadGroup sender = spreadMessage.getSender();
-            SpreadGroup newMember = membershipInfo.getJoined();
+            SpreadGroup joined = membershipInfo.getJoined();
+            SpreadGroup current = ReplicatedStateMachine.connection.getPrivateGroup();
 
-            if (ReplicatedStateMachine.connection.getPrivateGroup() != sender &&
-                    ReplicatedStateMachine.replicas.length < ReplicatedStateMachine.numberOfReplicas
-            ) { // ?
+            print("joined: " + joined);
+            print("private group: " + current);
+
+            if (ReplicatedStateMachine.connection.getPrivateGroup() != joined) {
                 Transaction transaction = new Transaction();
                 transaction.setUniqueId(ReplicatedStateMachine.replicaName + " " + ReplicatedStateMachine.replica.getOutstandingCounter());
                 transaction.setCommand("updateBalance");
