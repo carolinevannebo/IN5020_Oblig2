@@ -244,6 +244,7 @@ public class ReplicatedStateMachine {
             case "deposit": {
                 if (input.matches("deposit \\d+(\\.\\d+)?")) {
                     print(input);
+                    writeOutput(input);
                     String[] args = input.split(" ");
                     double amount = Double.parseDouble(args[1]);
 
@@ -261,6 +262,7 @@ public class ReplicatedStateMachine {
             case "addinterest": {
                 if (input.matches("addInterest \\d+(\\.\\d+)?")) {
                     print(input);
+                    writeOutput(input);
                     String[] args = input.split(" ");
                     double percent = Double.parseDouble(args[1]);
 
