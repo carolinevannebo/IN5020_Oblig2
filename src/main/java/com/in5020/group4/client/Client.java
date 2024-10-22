@@ -37,6 +37,7 @@ public class Client {
         System.out.println("Synced Balance: " + this.balance);
     }
 
+    // todo: only need transaction param
     public void deposit(Transaction transaction, double amount) {
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
@@ -48,7 +49,8 @@ public class Client {
         this.orderCounter.incrementAndGet();
     }
 
-    public void addInterest(Transaction transaction, int percent) {
+    // todo: only need transaction param
+    public void addInterest(Transaction transaction, double percent) {
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst()

@@ -25,7 +25,7 @@ public class ReplicatedStateMachine {
     private static String replicaName;
 
     public static AdvancedListener advancedListener;
-    public static final SpreadConnection connection = new SpreadConnection();
+    public static SpreadConnection connection;// = new SpreadConnection();
     public static final SpreadGroup group = new SpreadGroup();
 
     private static ScheduledExecutorService scheduledExecutor;
@@ -45,7 +45,8 @@ public class ReplicatedStateMachine {
             serverAddress = args[0];
             accountName = args[1];
             numberOfReplicas = Integer.parseInt(args[2]);
-            if (args.length > 3) fileName = args[3];
+            replicaName = args[3];
+            if (args.length > 4) fileName = args[4];
         } else {
             serverAddress = "127.0.0.1";
             accountName = "replicaGroup";
@@ -58,11 +59,12 @@ public class ReplicatedStateMachine {
         print("numberOfReplicas: " + numberOfReplicas);
 
         connect();
-        startExecutor();
+        //startExecutor();
         readInput();
         //after outstandingCollection is empty: stopExecutor();
         // print balance - should be equal to other replicas
         print("Balance: " + replica.getQuickBalance());
+
     }
 
     public static void main(String[] args) {
@@ -75,6 +77,7 @@ public class ReplicatedStateMachine {
         try {
             print("adding listener");
             advancedListener = new AdvancedListener();
+            connection = new SpreadConnection();
             connection.add(advancedListener);
             print("listener added");
 
@@ -86,13 +89,6 @@ public class ReplicatedStateMachine {
             print("joining group");
             joinGroup();
             print("joined group");
-
-//            SpreadMessage message = new SpreadMessage();
-//            message.addGroup(group);
-//            message.setFifo();
-//            message.setObject("first message");
-//            connection.multicast(message);
-//            replicas = message.getGroups();
 
             print("waiting for amount of replicas: " + numberOfReplicas);
             synchronized (group) {
@@ -109,11 +105,14 @@ public class ReplicatedStateMachine {
 
     private void joinGroup() throws SpreadException, InterruptedIOException {
         group.join(connection, accountName);
-        replicaName = connection.getPrivateGroup().toString();
+        //replicaName = connection.getPrivateGroup().toString();
         replica.sayHello(replicaName);
     }
 
-    private static synchronized void startExecutor() {
+    /*private static synchronized void startExecutor() {
+        long initialDelay = 0;
+        if (replicaName.equals("Rep3")) initialDelay = 15;
+
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         Collection<Transaction> outStandingCollection = replica.getOutstandingCollection();
         System.out.println("[Executor]: outstanding collection size " + outStandingCollection.size());
@@ -124,14 +123,14 @@ public class ReplicatedStateMachine {
             for (Transaction transaction : outStandingCollection) {
                 scheduledExecutor.scheduleAtFixedRate(() -> {
                     sendMessage(transaction);
-                }, 10, 10, TimeUnit.SECONDS);
+                }, initialDelay, 10, TimeUnit.SECONDS);
             }
             outStandingCollection.clear();
         }
-    }
+    }*/
 
     private static void stopExecutor() {
-        while (!replica.getOutstandingCollection().isEmpty()) { continue; }
+        //while (!replica.getOutstandingCollection().isEmpty()) { continue; }
         if (scheduledExecutor != null && !scheduledExecutor.isShutdown()) {
             scheduledExecutor.shutdown();
             try {
@@ -145,13 +144,15 @@ public class ReplicatedStateMachine {
     }
 
     private static void readInput() {
+        long initialDelay = 0;
+        if (replicaName.equals("Rep3")) initialDelay = 15;
+        scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         try {
             if (fileName == null) {
                 // read terminal input
                 while (true) {
                     Scanner scanner = new Scanner(System.in);
                     String input = scanner.nextLine();
-                    //print(input); // todo: parse
                     parseInput(input);
                     // todo: pass to client and broadcast
                 }
@@ -160,13 +161,39 @@ public class ReplicatedStateMachine {
                 File inputFile = new File(System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/" + fileName);
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
                 String line = "";
+                ArrayList<String> lines = new ArrayList<>();
 
                 while ((line = bufferedReader.readLine()) != null) {
-                    //print(line); // todo: parse
-                    parseInput(line);
-                    // todo: pass to client and broadcast
-                    Thread.sleep(1000);
+                    lines.add(line);
                 }
+
+                scheduledExecutor.scheduleAtFixedRate(() -> {
+                    synchronized (lines) {
+                        if (!lines.isEmpty()) {
+                            String input = lines.remove(0);
+                            try {
+                                parseInput(input);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            stopExecutor();
+                        }
+                    }
+                }, initialDelay, 10, TimeUnit.SECONDS);
+
+//                while ((line = bufferedReader.readLine()) != null) {
+//                    String finalLine = line;
+//                    scheduledExecutor.scheduleAtFixedRate(() -> {
+//                        try {
+//                            parseInput(finalLine);
+//                        } catch (InterruptedException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    }, initialDelay, 10, TimeUnit.SECONDS);
+//                    // todo: pass to client and broadcast
+//                    //Thread.sleep(1000);
+//                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -191,11 +218,10 @@ public class ReplicatedStateMachine {
     // todo: remove print statements and move them up to executor, will make the program feel like execution order
     private static void parseInput(String input) throws InterruptedException {
         if (input.equalsIgnoreCase("getQuickBalance")) {
-            print("\n" + input);
             print("Quick Balance: " + replica.getQuickBalance());
 
         } else if (input.equalsIgnoreCase("getSyncedBalance")) {
-            print("\n" + input);
+            print(input);
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
             transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
@@ -203,8 +229,9 @@ public class ReplicatedStateMachine {
 
             replica.getSyncedBalance(transaction);
             replica.addOutstandingCollection(transaction);
+            sendMessage(transaction);
         } else if (input.matches("deposit \\d+(\\.\\d+)?")) {
-            print("\n" + input);
+            print(input);
             String[] args = input.split(" ");
             double amount = Double.parseDouble(args[1]);
 
@@ -214,24 +241,26 @@ public class ReplicatedStateMachine {
             transaction.setBalance(amount);
             transaction.setType(TransactionType.DEPOSIT);
 
-            sendMessage(transaction);
             replica.deposit(transaction, amount);
             replica.addOutstandingCollection(transaction);
+            sendMessage(transaction);
         } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
-            print("\n" + input);
+            print(input);
             String[] args = input.split(" ");
-            int percent = Integer.parseInt(args[1]);
+            double percent = Double.parseDouble(args[1]);
 
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
             transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
+            transaction.setPercent(percent);
             transaction.setType(TransactionType.INTEREST);
 
             replica.addInterest(transaction, percent);
             replica.addOutstandingCollection(transaction);
+            sendMessage(transaction);
         } else if (input.equalsIgnoreCase("getHistory")) {
-            print("\n" + input);
-            print("\nExecuted List:");
+            print(input);
+            //print("\nExecuted List:");
 
 //            List<Transaction> executedTransactions = replica.getExecutedTransactions();
 //            Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
@@ -249,20 +278,20 @@ public class ReplicatedStateMachine {
 //                }
 //            }
         } else if (input.matches("checkTxStatus <.*>")) {
-            print("\n" + input);
+            print(input);
         } else if (input.equalsIgnoreCase("cleanHistory")) {
             print("Executing clean history");
 
             replica.setExecutedTransactions(new ArrayList<>());
             replica.setOrderCounter(new AtomicInteger(0));
         } else if (input.equalsIgnoreCase("memberInfo")) {
-            print("\n" + input);
+            print(input);
 
         } else if (input.matches("sleep \\d+")) {
             String[] args = input.split(" ");
             int time = Integer.parseInt(args[1]);
 
-            print("\nSleep: " + time + " seconds");
+            print("Sleep: " + time + " seconds");
             Thread.sleep(time);
         } else if (input.equalsIgnoreCase("exit")) {
             print("would exit but not gonna na ah");

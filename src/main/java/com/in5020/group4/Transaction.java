@@ -8,7 +8,8 @@ public class Transaction implements Serializable {
     // todo: make all private
     public String uniqueId;
     public String command;
-    private double balance;
+    private double balance; // todo: rename to param
+    private double percent;
     private TransactionType type;
 
     public Transaction() {}
@@ -39,6 +40,14 @@ public class Transaction implements Serializable {
 
     public double getBalance() {
         return balance;
+    }
+
+    public void setPercent(double percent) {
+        this.percent = percent;
+    }
+
+    public double getPercent() {
+        return percent;
     }
 
     public void setType(TransactionType type) {
