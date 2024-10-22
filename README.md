@@ -29,6 +29,7 @@
   state should be consistent across all the replicas: the balance of all replicas should be the same. - Caroline
 - [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
+- [x] Replicas should print the same balance by the end of program execution
 
 <b>Note1:</b> balance of the account can be negative.
 <b>Note2:</b> no need to consider the happened-before relationship of every single command
