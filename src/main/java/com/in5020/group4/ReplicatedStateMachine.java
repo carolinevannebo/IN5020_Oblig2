@@ -30,6 +30,7 @@ public class ReplicatedStateMachine {
 
     private static ScheduledExecutorService scheduledExecutor;
     public static boolean allReplicasPresent = false;
+    private static final Object lock = new Object();
 
     public ReplicatedStateMachine(String[] args) {
         fileName = null; // remember to handle filename by coding clients or terminal
@@ -166,6 +167,20 @@ public class ReplicatedStateMachine {
         }
     }
 
+    public static void writeOutput(String output) {
+        BufferedWriter writer = null;
+        String fileName = System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/output_" + replicaName + ".txt";
+        try {
+            writer = new BufferedWriter(new FileWriter(fileName, true));
+            writer.write(output);
+            writer.newLine();
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private static void sendMessage(Transaction transaction) {
         try {
             SpreadMessage message = new SpreadMessage();
@@ -185,11 +200,13 @@ public class ReplicatedStateMachine {
         switch (command.toLowerCase()) {
             case "getquickbalance": {
                 print("Quick Balance: " + replica.getQuickBalance());
+                writeOutput("Quick Balance: " + replica.getQuickBalance());
                 break;
             }
             case "getsyncedbalance": {
                 print(input);
                 // Naive
+                /*
                 new Thread(() -> {
                     synchronized (replica.getOutstandingCollection()) {
                         while (!replica.getOutstandingCollection().isEmpty()) {
@@ -201,9 +218,13 @@ public class ReplicatedStateMachine {
                         }
                         synchronized (replica.getOutstandingCollection()) {
                             print("Synced Balance Naive: " + replica.getQuickBalance());
+                            writeOutput("Synced Balance Naive: " + replica.getQuickBalance());
                         }
                     }
-                });//.start();
+                }).start();
+
+                 */
+
                 // Correct
                 if (replica.getOutstandingCollection().isEmpty()) {
                     Transaction transaction = new Transaction();
@@ -215,8 +236,10 @@ public class ReplicatedStateMachine {
                     sendMessage(transaction);
                 } else {
                     print("Synced Balance Correct: " + replica.getQuickBalance());
+                    writeOutput("Synced Balance Correct: " + replica.getQuickBalance());
                 }
                 break;
+
             }
             case "deposit": {
                 if (input.matches("deposit \\d+(\\.\\d+)?")) {
@@ -258,16 +281,20 @@ public class ReplicatedStateMachine {
                 List<Transaction> executedTransactions = replica.getExecutedTransactions();
                 if (!executedTransactions.isEmpty()) {
                     print("Executed List:");
+                    writeOutput("Executed List:");
                     for (Transaction transaction : executedTransactions) {
                         print(transaction.getUniqueId() + ":" + transaction.getCommand());
+                        writeOutput(transaction.getUniqueId() + ":" + transaction.getCommand());
                     }
                 }
 
                 Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
                 if (!outstandingCollection.isEmpty()) {
                     print("Outstanding collection:");
+                    writeOutput("Executed List:");
                     for (Transaction transaction : outstandingCollection) {
                         print(transaction.getUniqueId() + ":" + transaction.getCommand());
+                        writeOutput(transaction.getUniqueId() + ":" + transaction.getCommand());
                     }
                 }
                 break;
@@ -280,13 +307,16 @@ public class ReplicatedStateMachine {
                         .filter(it -> it.getUniqueId().equals(transactionId)).findFirst().orElse(null);
                 if (transactionExecuted != null) {
                     print(transactionExecuted.getCommand() + " is executed");
+                    writeOutput(transactionExecuted.getCommand() + " is executed");
                 } else {
                     print(input + " has not been executed yet");
+                    writeOutput(input + " has not been executed yet");
                 }
                 break;
             }
             case "cleanhistory": {
                 print("Executing clean history");
+                writeOutput("clean history");
                 replica.setExecutedTransactions(new ArrayList<>());
                 break;
             }
@@ -294,6 +324,7 @@ public class ReplicatedStateMachine {
                 System.out.print("[ReplicatedStateMachine]: Member info: ");
                 for (Object replicaName : Arrays.stream(replicas).toArray()) {
                     System.out.print(replicaName + " ");
+                    writeOutput(replicaName + " ");
                 }
                 System.out.println();
                 break;
@@ -304,6 +335,7 @@ public class ReplicatedStateMachine {
                     int time = Integer.parseInt(args[1]);
 
                     print("Sleep: " + time + " seconds");
+                    writeOutput("Sleep: " + time + " seconds");
                     Thread.sleep(time * 1000);
                 }
                 break;

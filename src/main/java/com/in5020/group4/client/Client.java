@@ -1,6 +1,10 @@
 package com.in5020.group4.client;
 
 import com.in5020.group4.Transaction;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -121,4 +125,6 @@ public class Client {
     public void sayHello(String replicaName) {
         System.out.println("Hello, my name is " + replicaName);
     }
+
+
 }
