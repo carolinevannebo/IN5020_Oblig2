@@ -28,10 +28,13 @@ public class ReplicatedStateMachine {
     public static SpreadConnection connection;
     public static final SpreadGroup group = new SpreadGroup();
 
-    private static ScheduledExecutorService scheduledExecutor;
+    private static ScheduledExecutorService inputExecutor;
+    private static ScheduledExecutorService broadcastingExecutor;
+    private static Transaction lastTransaction;
 
     public ReplicatedStateMachine(String[] args) {
-        fileName = null; // remember to handle filename by coding clients or terminal
+        lastTransaction = null;
+        fileName = null;
         replicas =  new SpreadGroup[0];
         replica = new Client(0.0,
                 new ArrayList<>(),
@@ -58,6 +61,9 @@ public class ReplicatedStateMachine {
 
         connect();
         readInput();
+        //startBroadcastingExecutor();
+//        inputThread.start();
+//        broadcastingThread.start();
         print("Balance: " + replica.getQuickBalance());
     }
 
@@ -98,15 +104,30 @@ public class ReplicatedStateMachine {
         replica.sayHello(replicaName);
     }
 
-    private static void stopExecutor() {
-        if (scheduledExecutor != null && !scheduledExecutor.isShutdown()) {
-            scheduledExecutor.shutdown();
+//    private static synchronized void startBroadcastingExecutor() {
+//        broadcastingExecutor = Executors.newSingleThreadScheduledExecutor();
+//        Collection<Transaction> outStandingCollection = replica.getOutstandingCollection();
+//        synchronized (outStandingCollection) {
+//            broadcastingExecutor.scheduleAtFixedRate(() -> {
+//                    if (!outStandingCollection.isEmpty()) {
+//                        print("Client " + replicaName + " has " + outStandingCollection.size() + " outstanding transactions");
+//                        for (Transaction transaction : outStandingCollection) {
+//                            sendMessage(transaction);
+//                        }
+//                    }
+//            }, 0, 2, TimeUnit.SECONDS);
+//        }
+//    }
+
+    private static void stopExecutor(ScheduledExecutorService executor) {
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
             try {
-                if (!scheduledExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
-                    scheduledExecutor.shutdownNow();
+                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
                 }
             } catch (InterruptedException e) {
-                scheduledExecutor.shutdownNow();
+                executor.shutdownNow();
             }
         }
     }
@@ -114,7 +135,7 @@ public class ReplicatedStateMachine {
     private static void readInput() {
         long initialDelay = 0;
         if (replicaName.equals("Rep3")) initialDelay = 15;
-        scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        inputExecutor = Executors.newSingleThreadScheduledExecutor();
 
         try {
             if (fileName == null) {
@@ -135,20 +156,19 @@ public class ReplicatedStateMachine {
                     lines.add(line);
                 }
 
-                scheduledExecutor.scheduleAtFixedRate(() -> {
+                inputExecutor.scheduleAtFixedRate(() -> {
                     synchronized (lines) {
                         if (!lines.isEmpty()) {
                             String input = lines.remove(0);
                             try {
                                 parseInput(input);
                                 float T = 0.5f + (float) Math.random();
-                                print("T is " + T); // todo: remove print statement
                                 Thread.sleep((long) T);
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
                         } else {
-                            stopExecutor();
+                            stopExecutor(inputExecutor);
                         }
                     }
                 }, initialDelay, 1, TimeUnit.SECONDS);
@@ -168,12 +188,12 @@ public class ReplicatedStateMachine {
             message.setObject(transaction);
             print("Sending message, transaction id: " + transaction.uniqueId);
             connection.multicast(message);
+            lastTransaction = transaction;
         } catch (SpreadException e) {
             System.out.println("[Error]: " + e.getMessage());
         }
     }
 
-    // todo: update code to latest and refactor to switch case
     private static void parseInput(String input) throws InterruptedException {
         String command = input.split(" ")[0];  // Extract command
         switch (command.toLowerCase()) {
@@ -198,6 +218,7 @@ public class ReplicatedStateMachine {
                         }
                     }
                 });//.start();
+
                 // Correct
                 if (replica.getOutstandingCollection().isEmpty()) {
                     Transaction transaction = new Transaction();
@@ -287,7 +308,10 @@ public class ReplicatedStateMachine {
             case "memberinfo": {
                 System.out.print("[ReplicatedStateMachine]: Member info: ");
                 for (Object replicaName : Arrays.stream(replicas).toArray()) {
-                    String newReplicaName = replicaName.toString().replace("#", "").replace("spreadserver", "");
+                    String newReplicaName = replicaName.toString()
+                            .replace("#", "")
+                            .replace("spreadserver", "")
+                            .replace("-", " ");
                     System.out.print(newReplicaName + " ");
                 }
                 System.out.println();
@@ -299,14 +323,12 @@ public class ReplicatedStateMachine {
                     int time = Integer.parseInt(args[1]);
 
                     print("Sleep: " + time + " seconds");
-                    Thread.sleep(time * 1000);
+                    Thread.sleep(time * 1000L);
                 }
                 break;
             }
             case "exit": {
-                print("would exit but not gonna na ah");
-                // todo: check that all executions are done and messages has been broadcast
-                //exit();
+                exit();
                 break;
             }
             default: {
@@ -318,14 +340,27 @@ public class ReplicatedStateMachine {
 
     private static void exit() {
         try {
-            if (!replica.getOutstandingCollection().isEmpty()) {
-                //wait
-                // not enough, although we remove from outstanding collection,
-                // how do we know there's no incoming messages from other replicas that need to be executed?
-            }
+//            print("Has to wait for tasks to complete before exiting...");
+//            while (true) {
+//                if (replica.getOutstandingCollection().isEmpty()) {
+//                    print("empty");
+//                    break;
+//                } else {
+//                    print("not empty, transactions left: ");
+//                    for (Transaction transaction : replica.getOutstandingCollection()) {
+//                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
+//                    }
+//                }
+//            }
+//            print("All tasks completed.");
+            // not enough, although we remove from outstanding collection,
+            // how do we know there's no incoming messages from other replicas that need to be executed?
 
-            print("Stopping executor");
-            stopExecutor();
+            print("Stopping executors...");
+            stopExecutor(inputExecutor);
+            //stopExecutor(broadcastingExecutor);
+//            inputThread.interrupt();
+//            broadcastingThread.interrupt();
 
             print("Leaving spread group...");
             group.leave();
@@ -338,7 +373,10 @@ public class ReplicatedStateMachine {
                 connection.disconnect();
             }
         } catch (SpreadException e) {
+            print("BALANCE: " + replica.getQuickBalance());
             print("Exiting environment...");
+        } finally {
+            print("BALANCE: " + replica.getQuickBalance());
             System.exit(0);
         }
     }
