@@ -20,7 +20,7 @@
 - [x] cleanHistory - Caroline
 - [x] memberInfo - Caroline
 - [x] sleep <duration> - Liang
-- [ ] exit needs to wait for all executions to finish - Caroline
+- [x] exit needs to wait for all executions to finish - Caroline
 - [ ] If the optional argument of [file name] is not present, the client will
   interactively accept commands from the user through a command line. If [file name] is
   present, then the client will perform batch processing of commands that it will read from [file

@@ -5,5 +5,6 @@ public enum TransactionType {
     DEPOSIT,
     INTEREST,
     SYNCED_BALANCE,
+    UPDATE_BALANCE,
     NONE
 }

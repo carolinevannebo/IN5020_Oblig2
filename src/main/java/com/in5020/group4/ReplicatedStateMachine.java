@@ -22,7 +22,7 @@ public class ReplicatedStateMachine {
 
     public static Client replica;
     public static SpreadGroup[] replicas;
-    private static String replicaName;
+    public static String replicaName;
 
     public static AdvancedListener advancedListener;
     public static SpreadConnection connection;// = new SpreadConnection();
@@ -162,7 +162,7 @@ public class ReplicatedStateMachine {
         }
     }
 
-    private static void sendMessage(Transaction transaction) {
+    public static void sendMessage(Transaction transaction) {
         try {
             SpreadMessage message = new SpreadMessage();
             message.addGroup(group);
