@@ -60,7 +60,7 @@ public class ReplicatedStateMachine {
 
         connect();
         readInput();
-        //after outstandingCollection is empty: stopExecutor();
+        //after outstandingCollection is empty: stopExecutor(); ??
         // print balance - should be equal to other replicas
         print("Balance: " + replica.getQuickBalance());
 
@@ -146,6 +146,7 @@ public class ReplicatedStateMachine {
                             String input = lines.remove(0);
                             try {
                                 parseInput(input);
+                                // todo: fix method to handle other commands as well
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
@@ -168,6 +169,7 @@ public class ReplicatedStateMachine {
             message.addGroup(group);
             message.setFifo();
             message.setObject(transaction);
+            print("Sending message, transaction id: " + transaction.uniqueId);
             connection.multicast(message);
         } catch (SpreadException e) {
             System.out.println("[Error]: " + e.getMessage());
@@ -184,14 +186,33 @@ public class ReplicatedStateMachine {
             }
             case "getsyncedbalance": {
                 print(input);
-                Transaction syncedTransaction = new Transaction();
-                syncedTransaction.setCommand(input);
-                syncedTransaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
-                syncedTransaction.setType(TransactionType.NONE);
+                // Naive
+                new Thread(() -> {
+                    synchronized (replica.getOutstandingCollection()) {
+                        while (!replica.getOutstandingCollection().isEmpty()) {
+                            try {
+                                replica.getOutstandingCollection().wait(); // ?
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        synchronized (replica.getOutstandingCollection()) {
+                            print("Synced Balance Naive: " + replica.getQuickBalance());
+                        }
+                    }
+                });//.start();
+                // Correct
+                if (replica.getOutstandingCollection().isEmpty()) {
+                    Transaction transaction = new Transaction();
+                    transaction.setCommand(input);
+                    transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
+                    transaction.setType(TransactionType.SYNCED_BALANCE);
 
-                replica.getSyncedBalance(syncedTransaction);
-                replica.addOutstandingCollection(syncedTransaction);
-                sendMessage(syncedTransaction);
+                    replica.addOutstandingCollection(transaction);
+                    sendMessage(transaction);
+                } else {
+                    print("Synced Balance Correct: " + replica.getQuickBalance());
+                }
                 break;
             }
             case "deposit": {
@@ -206,7 +227,6 @@ public class ReplicatedStateMachine {
                     transaction.setBalance(amount);
                     transaction.setType(TransactionType.DEPOSIT);
 
-                    replica.deposit(transaction, amount);
                     replica.addOutstandingCollection(transaction);
                     sendMessage(transaction);
                 }
@@ -224,7 +244,6 @@ public class ReplicatedStateMachine {
                     transaction.setPercent(percent);
                     transaction.setType(TransactionType.INTEREST);
 
-                    replica.addInterest(transaction, percent);
                     replica.addOutstandingCollection(transaction);
                     sendMessage(transaction);
                 }
@@ -277,10 +296,12 @@ public class ReplicatedStateMachine {
             case "exit": {
                 print("would exit but not gonna na ah");
                 // todo: check that all executions are done and messages has been broadcast
-                exit();
+                //exit();
+                break;
             }
             default: {
                 System.out.println("[Feedback]: command not recognized, try again");
+                break;
             }
         }
     }
