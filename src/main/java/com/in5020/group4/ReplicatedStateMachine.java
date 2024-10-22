@@ -127,7 +127,11 @@ public class ReplicatedStateMachine {
                 while (true) { // todo: test
                     Scanner scanner = new Scanner(System.in);
                     String input = scanner.nextLine();
-                    parseInput(input);
+                    if (input.equals("exit")) {
+                        System.exit(0);
+                        break;
+                    }
+                    else parseInput(input);
                 }
             } else {
                 // read file input
