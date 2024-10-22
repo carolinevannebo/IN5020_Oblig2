@@ -20,8 +20,8 @@ public class ReplicatedStateMachine {
     private static String accountName;
     public static int numberOfReplicas;
 
-    public static SpreadGroup[] replicas;
     public static Client replica;
+    public static SpreadGroup[] replicas;
     private static String replicaName;
 
     public static AdvancedListener advancedListener;
@@ -32,8 +32,8 @@ public class ReplicatedStateMachine {
     public static boolean allReplicasPresent = false;
 
     public ReplicatedStateMachine(String[] args) {
-        replicas =  new SpreadGroup[0];
         fileName = null; // remember to handle filename by coding clients or terminal
+        replicas =  new SpreadGroup[0];
         replica = new Client(0.0,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -46,24 +46,23 @@ public class ReplicatedStateMachine {
             accountName = args[1];
             numberOfReplicas = Integer.parseInt(args[2]);
             replicaName = args[3];
-            if (args.length > 4) fileName = args[4];
-        } else {
-            serverAddress = "127.0.0.1";
-            accountName = "replicaGroup";
-            numberOfReplicas = 2;
-        }
 
-        print("fileName: " + fileName);
-        print("serverAddress: " + serverAddress);
-        print("accountName: " + accountName);
-        print("numberOfReplicas: " + numberOfReplicas);
+            if (args.length > 4) fileName = args[4];
+            // todo: else, set CLI mode
+        } else {
+            System.out.println(" ----- MISSING ARGUMENTS -----");
+            System.out.println("Please provide the following arguments:");
+            System.out.println("<serverAddress> <accountName> <numberOfReplicas> <replicaName> <fileName>");
+            System.out.println("\nExample:");
+            System.out.println("172.20.10.3 replicaGroup 3 Rep1 Rep1.txt");
+            System.exit(0);
+        }
 
         connect();
         readInput();
         //after outstandingCollection is empty: stopExecutor(); ??
         // print balance - should be equal to other replicas
         print("Balance: " + replica.getQuickBalance());
-
     }
 
     public static void main(String[] args) {
@@ -80,7 +79,7 @@ public class ReplicatedStateMachine {
             print("listener added");
 
             connection.connect(InetAddress.getByName(serverAddress),
-                    4803, String.valueOf(id), false, true);
+                    4803, replicaName, false, true);
             print("connected");
 
             joinGroup();
@@ -255,47 +254,48 @@ public class ReplicatedStateMachine {
             }
             case "gethistory": {
                 print(input);
-//                List<Transaction> executedTransactions = replica.getExecutedTransactions();
-//                Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
-//
-//                if (!executedTransactions.isEmpty()) {
-//                    print("\nExecuted List:");
-//                    for (Transaction transaction : executedTransactions) {
-//                        System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
-//                    }
-//                }
-//
-//                if (!outstandingCollection.isEmpty()) {
-//                    print("\nOutstanding collection:");
-//                    for (Transaction transaction : outstandingCollection) {
-//                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
-//                    }
-//                }
+
+                List<Transaction> executedTransactions = replica.getExecutedTransactions();
+                if (!executedTransactions.isEmpty()) {
+                    print("Executed List:");
+                    for (Transaction transaction : executedTransactions) {
+                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
+                    }
+                }
+
+                Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
+                if (!outstandingCollection.isEmpty()) {
+                    print("Outstanding collection:");
+                    for (Transaction transaction : outstandingCollection) {
+                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
+                    }
+                }
                 break;
             }
             case "checktxstatus": {
-                // TODO: to be fixed
                 print(input);
                 String[] args = input.split(" ");
                 String transactionId = args[1] + " " + args[2];
-                Transaction transactionExecuted = client.getExecutedList().stream()
+                Transaction transactionExecuted = replica.getExecutedTransactions().stream()
                         .filter(it -> it.getUniqueId().equals(transactionId)).findFirst().orElse(null);
                 if (transactionExecuted != null) {
-                    System.out.println(transactionExecuted.getCommand() + " is executed");
+                    print(transactionExecuted.getCommand() + " is executed");
                 } else {
-                    System.out.println(transactionExecuted.getCommand() + " is not executed");
+                    print(input + " has not been executed yet");
                 }
                 break;
             }
             case "cleanhistory": {
                 print("Executing clean history");
                 replica.setExecutedTransactions(new ArrayList<>());
-                //replica.setOrderCounter(new AtomicInteger(0));
                 break;
             }
             case "memberinfo": {
-                // TODO: to be fixed
-                print(input);
+                System.out.print("[ReplicatedStateMachine]: Member info: ");
+                for (Object replicaName : Arrays.stream(replicas).toArray()) {
+                    System.out.print(replicaName + " ");
+                }
+                System.out.println();
                 break;
             }
             case "sleep": {
@@ -304,7 +304,7 @@ public class ReplicatedStateMachine {
                     int time = Integer.parseInt(args[1]);
 
                     print("Sleep: " + time + " seconds");
-                    Thread.sleep(time*1000);
+                    Thread.sleep(time * 1000);
                 }
                 break;
             }
@@ -323,6 +323,12 @@ public class ReplicatedStateMachine {
 
     private static void exit() {
         try {
+            if (!replica.getOutstandingCollection().isEmpty()) {
+                //wait
+                // not enough, although we remove from outstanding collection,
+                // how do we know there's no incoming messages from other replicas that need to be executed?
+            }
+
             print("Stopping executor");
             stopExecutor();
 
