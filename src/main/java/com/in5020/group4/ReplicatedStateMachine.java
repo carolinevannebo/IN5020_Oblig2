@@ -111,7 +111,7 @@ public class ReplicatedStateMachine {
                             sendMessage(transaction);
                         }
                     }
-            }, 0, 2, TimeUnit.SECONDS);
+            }, 0, 10, TimeUnit.SECONDS);
         }
     }
 
@@ -222,7 +222,6 @@ public class ReplicatedStateMachine {
                     transaction.setType(TransactionType.SYNCED_BALANCE);
 
                     replica.addOutstandingCollection(transaction);
-                    //sendMessage(transaction);
                 } else {
                     print("Synced Balance Correct: " + replica.getQuickBalance());
                 }
@@ -241,7 +240,6 @@ public class ReplicatedStateMachine {
                     transaction.setType(TransactionType.DEPOSIT);
 
                     replica.addOutstandingCollection(transaction);
-                    //sendMessage(transaction);
                 }
                 break;
             }
@@ -258,7 +256,6 @@ public class ReplicatedStateMachine {
                     transaction.setType(TransactionType.INTEREST);
 
                     replica.addOutstandingCollection(transaction);
-                    //sendMessage(transaction);
                 }
                 break;
             }
@@ -335,27 +332,9 @@ public class ReplicatedStateMachine {
 
     private static void exit() {
         try {
-//            print("Has to wait for tasks to complete before exiting...");
-//            while (true) {
-//                if (replica.getOutstandingCollection().isEmpty()) {
-//                    print("empty");
-//                    break;
-//                } else {
-//                    print("not empty, transactions left: ");
-//                    for (Transaction transaction : replica.getOutstandingCollection()) {
-//                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
-//                    }
-//                }
-//            }
-//            print("All tasks completed.");
-            // not enough, although we remove from outstanding collection,
-            // how do we know there's no incoming messages from other replicas that need to be executed?
-
             print("Stopping executors...");
             stopExecutor(inputExecutor);
             stopExecutor(broadcastingExecutor);
-//            inputThread.interrupt();
-//            broadcastingThread.interrupt();
 
             print("Leaving spread group...");
             group.leave();

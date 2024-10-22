@@ -20,9 +20,6 @@ public class Client {
         this.outstandingCounter = outstandingCounter;
     }
 
-    public void addExecutedTransaction(Transaction transaction) {
-        this.executedList.add(transaction);
-    }
     public void addOutstandingCollection(Transaction transaction) {
         this.outstandingCollection.add(transaction);
         this.outstandingCounter.incrementAndGet();
@@ -58,22 +55,6 @@ public class Client {
         this.orderCounter.incrementAndGet();
     }
 
-
-    public String checkTxStatus(int transactionId) throws Exception {
-        return "";
-    }
-
-    public List<String> memberInfo() throws Exception {
-        return List.of();
-    }
-
-    public void getHistory() { // don't think this is right
-        /*int start = this.orderCounter.get() - this.executedList.size();
-        for (int i = this.orderCounter.get(); i < this.executedList.size(); i++) {
-            print(i + ". " + this.executedList.get(i).command);
-        }*/
-    }
-
     public double getQuickBalance() {
         return balance;
     }
@@ -94,24 +75,8 @@ public class Client {
         return this.outstandingCollection;
     }
 
-    public void setOutstandingCollection(Collection<Transaction> outstandingCollection) {
-        this.outstandingCollection = outstandingCollection;
-    }
-
-    public AtomicInteger getOrderCounter() {
-        return this.orderCounter;
-    }
-
-    public void setOrderCounter(AtomicInteger orderCounter) {
-        this.orderCounter = orderCounter;
-    }
-
     public AtomicInteger getOutstandingCounter() {
         return this.outstandingCounter;
-    }
-
-    public void setOutstandingCounter(AtomicInteger outstandingCounter) {
-        this.outstandingCounter = outstandingCounter;
     }
 
     public void print(String message) {
