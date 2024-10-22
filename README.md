@@ -25,8 +25,9 @@
   interactively accept commands from the user through a command line. If [file name] is
   present, then the client will perform batch processing of commands that it will read from [file
   name] every T seconds and exit. T is a random float number between 0.5-1.5s. - Caroline
-- [ ] After initializing balance to 0.0, the client should handle new joins by setting the state of the new replica, and the
+- [x] After initializing balance to 0.0, the client should handle new joins by setting the state of the new replica, and the
   state should be consistent across all the replicas: the balance of all replicas should be the same. - Caroline
+- [ ] should tolerate departure of individual clients (due to leaves or crashes)
 - [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
 - [x] Replicas should print the same balance by the end of program execution
