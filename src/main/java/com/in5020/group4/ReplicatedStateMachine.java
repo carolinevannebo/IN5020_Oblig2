@@ -270,16 +270,27 @@ public class ReplicatedStateMachine {
                 break;
             }
             case "checktxstatus": {
+                // TODO: to be fixed
                 print(input);
+                String[] args = input.split(" ");
+                String transactionId = args[1] + " " + args[2];
+                Transaction transactionExecuted = client.getExecutedList().stream()
+                        .filter(it -> it.getUniqueId().equals(transactionId)).findFirst().orElse(null);
+                if (transactionExecuted != null) {
+                    System.out.println(transactionExecuted.getCommand() + " is executed");
+                } else {
+                    System.out.println(transactionExecuted.getCommand() + " is not executed");
+                }
                 break;
             }
             case "cleanhistory": {
                 print("Executing clean history");
                 replica.setExecutedTransactions(new ArrayList<>());
-                replica.setOrderCounter(new AtomicInteger(0));
+                //replica.setOrderCounter(new AtomicInteger(0));
                 break;
             }
             case "memberinfo": {
+                // TODO: to be fixed
                 print(input);
                 break;
             }
@@ -289,7 +300,7 @@ public class ReplicatedStateMachine {
                     int time = Integer.parseInt(args[1]);
 
                     print("Sleep: " + time + " seconds");
-                    Thread.sleep(time);
+                    Thread.sleep(time*1000);
                 }
                 break;
             }
