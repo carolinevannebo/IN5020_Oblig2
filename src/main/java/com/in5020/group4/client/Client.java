@@ -119,6 +119,6 @@ public class Client {
     }
 
     public void sayHello(String replicaName) {
-        System.out.println("Hello, my name is " + replicaName);
+        System.out.println("Hello, my name is " + replicaName + " I have " + this.balance);
     }
 }

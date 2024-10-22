@@ -27,8 +27,8 @@ public class AdvancedListener implements AdvancedMessageListener {
                     print("got notified to get synced balance, transaction id: " + transaction.uniqueId); // todo: remove print statement
                 }
                 case UPDATE_BALANCE -> {
+                    print("got notified to update balance to " + transaction.getBalance() +", transaction id: " + transaction.uniqueId + ", previous balance: " + ReplicatedStateMachine.replica.getQuickBalance());
                     ReplicatedStateMachine.replica.setBalance(transaction.getBalance());
-                    print("got notified to update balance, transaction id: " + transaction.uniqueId);
                 }
                 default -> print("Regular message received: " + transaction.command);
             }
@@ -54,8 +54,12 @@ public class AdvancedListener implements AdvancedMessageListener {
                 state should be consistent across all the replicas: the balance of all replicas
                 should be the same.*/
 
+            SpreadGroup sender = spreadMessage.getSender();
             SpreadGroup newMember = membershipInfo.getJoined();
-            if (ReplicatedStateMachine.connection.getPrivateGroup() != newMember) { // >= or > ?
+
+            if (ReplicatedStateMachine.connection.getPrivateGroup() != sender &&
+                    ReplicatedStateMachine.replicas.length < ReplicatedStateMachine.numberOfReplicas
+            ) { // ?
                 Transaction transaction = new Transaction();
                 transaction.setUniqueId(ReplicatedStateMachine.replicaName + " " + ReplicatedStateMachine.replica.getOutstandingCounter());
                 transaction.setCommand("updateBalance");

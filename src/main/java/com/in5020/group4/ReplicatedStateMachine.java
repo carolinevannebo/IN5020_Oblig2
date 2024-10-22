@@ -29,12 +29,12 @@ public class ReplicatedStateMachine {
     public static final SpreadGroup group = new SpreadGroup();
 
     private static ScheduledExecutorService scheduledExecutor;
-    public static boolean allReplicasPresent = false;
+    //public static boolean allReplicasPresent = false;
 
     public ReplicatedStateMachine(String[] args) {
         fileName = null; // remember to handle filename by coding clients or terminal
         replicas =  new SpreadGroup[0];
-        replica = new Client(0.0,
+        replica = new Client(1000.0,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new AtomicInteger(0),
@@ -91,7 +91,7 @@ public class ReplicatedStateMachine {
                     group.wait();
                 }
             }
-            allReplicasPresent = true;
+            //allReplicasPresent = true;
             print("done waiting, current replicas length: " + replicas.length);
         } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
             e.printStackTrace();
