@@ -25,11 +25,10 @@ public class ReplicatedStateMachine {
     public static String replicaName;
 
     public static AdvancedListener advancedListener;
-    public static SpreadConnection connection;// = new SpreadConnection();
+    public static SpreadConnection connection;
     public static final SpreadGroup group = new SpreadGroup();
 
     private static ScheduledExecutorService scheduledExecutor;
-    //public static boolean allReplicasPresent = false;
 
     public ReplicatedStateMachine(String[] args) {
         fileName = null; // remember to handle filename by coding clients or terminal
@@ -48,7 +47,6 @@ public class ReplicatedStateMachine {
             replicaName = args[3];
 
             if (args.length > 4) fileName = args[4];
-            // todo: else, set CLI mode
         } else {
             System.out.println(" ----- MISSING ARGUMENTS -----");
             System.out.println("Please provide the following arguments:");
@@ -60,8 +58,6 @@ public class ReplicatedStateMachine {
 
         connect();
         readInput();
-        //after outstandingCollection is empty: stopExecutor(); ??
-        // print balance - should be equal to other replicas
         print("Balance: " + replica.getQuickBalance());
     }
 
@@ -91,7 +87,6 @@ public class ReplicatedStateMachine {
                     group.wait();
                 }
             }
-            //allReplicasPresent = true;
             print("done waiting, current replicas length: " + replicas.length);
         } catch (SpreadException | UnknownHostException | InterruptedException | InterruptedIOException e) {
             e.printStackTrace();
@@ -120,10 +115,11 @@ public class ReplicatedStateMachine {
         long initialDelay = 0;
         if (replicaName.equals("Rep3")) initialDelay = 15;
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+
         try {
             if (fileName == null) {
-                // read terminal input
-                while (true) { // todo: test
+                // read command line input
+                while (true) {
                     Scanner scanner = new Scanner(System.in);
                     String input = scanner.nextLine();
                     parseInput(input);
@@ -145,7 +141,9 @@ public class ReplicatedStateMachine {
                             String input = lines.remove(0);
                             try {
                                 parseInput(input);
-                                // todo: fix method to handle other commands as well
+                                float T = 0.5f + (float) Math.random();
+                                print("T is " + T); // todo: remove print statement
+                                Thread.sleep((long) T);
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
@@ -289,7 +287,8 @@ public class ReplicatedStateMachine {
             case "memberinfo": {
                 System.out.print("[ReplicatedStateMachine]: Member info: ");
                 for (Object replicaName : Arrays.stream(replicas).toArray()) {
-                    System.out.print(replicaName + " ");
+                    String newReplicaName = replicaName.toString().replace("#", "").replace("spreadserver", "");
+                    System.out.print(newReplicaName + " ");
                 }
                 System.out.println();
                 break;
