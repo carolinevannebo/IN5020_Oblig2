@@ -11,7 +11,7 @@
 - [x] File reader - Caroline
 - [x] Implement file reader - Caroline
 - [x] getQuickBalance - Liang
-- [ ] getSyncedBalance (naive implementation) - Liang
+- [x] getSyncedBalance (naive implementation) - Liang
 - [x] getSyncedBalance (correct implementation) - Liang
 - [x] deposit <amount> - Liang
 - [x] addInterest <percent> - Liang
@@ -26,7 +26,7 @@
   state should be consistent across all the replicas: the balance of all replicas should be the same. - Caroline
 
 
-- [ ] should tolerate departure of individual clients (due to leaves or crashes) and continue operation when it occurs. - Caroline
+- [x] should tolerate departure of individual clients (due to leaves or crashes) and continue operation when it occurs. - Caroline
 - [ ] If [file name] is present, then the client will perform batch processing of commands that it will read from [file name] every T seconds and exit. T is a random float number between 0.5-1.5s. - Caroline
 - [ ] getHistory touchup: executed list should be sorted by the order in which the transactions were applied - Liang
 - [x] doublecheck: checkTxStatus <Transaction.unique_id> this command returns the status of a deposit or addInterest transaction to show if it has been applied yet.

@@ -13,6 +13,7 @@ public class AdvancedListener implements AdvancedMessageListener {
         try {
             Transaction transaction = (Transaction) spreadMessage.getObject();
 
+            // receive broadcast messages and execute
             switch (transaction.getType()) {
                 case DEPOSIT -> {
                     ReplicatedStateMachine.replica.deposit(transaction, transaction.getBalance());
@@ -44,23 +45,14 @@ public class AdvancedListener implements AdvancedMessageListener {
 
         if (membershipInfo.isCausedByJoin()) {
             ReplicatedStateMachine.replicas = membershipInfo.getMembers();
-            synchronized (ReplicatedStateMachine.group) {
+            synchronized (ReplicatedStateMachine.group) { // notify waiting clients when expected number of replicas are present
                 if (ReplicatedStateMachine.replicas.length >= ReplicatedStateMachine.numberOfReplicas) {
                     ReplicatedStateMachine.group.notifyAll();
                 }
             }
-            /* todo: All initial replicas will start with the same state: balance = 0.0. After that, the
-                client should handle new joins by setting the state of the new replica, and the
-                state should be consistent across all the replicas: the balance of all replicas
-                should be the same.*/
 
             SpreadGroup joined = membershipInfo.getJoined();
-            SpreadGroup current = ReplicatedStateMachine.connection.getPrivateGroup();
-
-            print("joined: " + joined);
-            print("private group: " + current);
-
-            if (ReplicatedStateMachine.connection.getPrivateGroup() != joined) {
+            if (!ReplicatedStateMachine.connection.getPrivateGroup().equals(joined)) { // Updating balance of newly joined replica
                 Transaction transaction = new Transaction();
                 transaction.setUniqueId(ReplicatedStateMachine.replicaName + " " + ReplicatedStateMachine.replica.getOutstandingCounter());
                 transaction.setCommand("updateBalance");
@@ -69,6 +61,8 @@ public class AdvancedListener implements AdvancedMessageListener {
 
                 ReplicatedStateMachine.sendMessage(transaction);
             }
+        } else if (membershipInfo.isCausedByLeave() || membershipInfo.isCausedByDisconnect()) {
+            ReplicatedStateMachine.replicas = membershipInfo.getMembers();
         }
     }
 

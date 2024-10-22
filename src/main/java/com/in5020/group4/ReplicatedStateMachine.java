@@ -79,7 +79,7 @@ public class ReplicatedStateMachine {
             print("listener added");
 
             connection.connect(InetAddress.getByName(serverAddress),
-                    4803, replicaName, false, true);
+                    4803, replicaName+"-"+id, false, true);
             print("connected");
 
             joinGroup();
