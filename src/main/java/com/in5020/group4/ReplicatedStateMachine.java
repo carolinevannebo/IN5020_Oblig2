@@ -60,7 +60,6 @@ public class ReplicatedStateMachine {
         connect();
         readInput();
         startBroadcastingExecutor();
-        print("Balance: " + replica.getQuickBalance());
     }
 
     public static void main(String[] args) {
