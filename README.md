@@ -21,16 +21,23 @@
 - [x] memberInfo - Caroline
 - [x] sleep <duration> - Liang
 - [x] exit needs to wait for all executions to finish - Caroline
-- [ ] If the optional argument of [file name] is not present, the client will
-  interactively accept commands from the user through a command line. If [file name] is
-  present, then the client will perform batch processing of commands that it will read from [file
-  name] every T seconds and exit. T is a random float number between 0.5-1.5s. - Caroline
+- [x] If the optional argument of [file name] is not present, the client will interactively accept commands from the user through a command line.
 - [x] After initializing balance to 0.0, the client should handle new joins by setting the state of the new replica, and the
   state should be consistent across all the replicas: the balance of all replicas should be the same. - Caroline
-- [ ] should tolerate departure of individual clients (due to leaves or crashes)
+
+
+- [ ] should tolerate departure of individual clients (due to leaves or crashes) and continue operation when it occurs. - Caroline
+- [ ] If [file name] is present, then the client will perform batch processing of commands that it will read from [file name] every T seconds and exit. T is a random float number between 0.5-1.5s.
+- [ ] getHistory touchup: executed list should be sorted by the order in which the transactions were applied
+- [ ] doublecheck: checkTxStatus <Transaction.unique_id> this command returns the status of a deposit or addInterest transaction to show if it has been applied yet.
+- [ ] The transactions in outstanding_collection are broadcast to the group of instances every 10 seconds so that the outstanding_collection will be ordered in a consistent view across the replicas.
+
 - [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
 - [x] Replicas should print the same balance by the end of program execution
+- [ ] documentation: the differences between the two requested implementations for getSyncedBalance command. Additionally, your
+  documentation should explain how you distributed the workload among your group.
+- [ ] Ready to deploy jar file
 
 <b>Note1:</b> balance of the account can be negative.
 <b>Note2:</b> no need to consider the happened-before relationship of every single command
