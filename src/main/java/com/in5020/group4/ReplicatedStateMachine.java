@@ -317,6 +317,12 @@ public class ReplicatedStateMachine {
 
     private static void exit() {
         try {
+            if (!replica.getOutstandingCollection().isEmpty()) {
+                //wait
+                // not enough, although we remove from outstanding collection,
+                // how do we know there's no incoming messages from other replicas that need to be executed?
+            }
+
             print("Stopping executor");
             stopExecutor();
 
