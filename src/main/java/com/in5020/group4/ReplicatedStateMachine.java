@@ -62,6 +62,7 @@ public class ReplicatedStateMachine {
         readInput();
         //after outstandingCollection is empty: stopExecutor();
         // print balance - should be equal to other replicas
+        print("Balance: " + replica.getQuickBalance());
     }
 
     public static void main(String[] args) {
@@ -164,7 +165,7 @@ public class ReplicatedStateMachine {
                     //print(line); // todo: parse
                     parseInput(line);
                     // todo: pass to client and broadcast
-                    //Thread.sleep(1000);
+                    Thread.sleep(1000);
                 }
             }
         } catch (IOException e) {
