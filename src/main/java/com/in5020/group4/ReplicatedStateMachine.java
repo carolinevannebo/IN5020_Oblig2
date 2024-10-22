@@ -142,8 +142,15 @@ public class ReplicatedStateMachine {
                 }
             } else {
                 // read file input
+                BufferedReader bufferedReader;
                 File inputFile = new File(System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/" + fileName);
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+                //File jarInputFile = new File(fileName);
+                //try {
+                    bufferedReader = new BufferedReader(new FileReader(inputFile));
+                //} catch (FileNotFoundException e) {
+                //    bufferedReader = new BufferedReader(new FileReader(jarInputFile));
+                //}
+
                 String line = "";
                 ArrayList<String> lines = new ArrayList<>();
 

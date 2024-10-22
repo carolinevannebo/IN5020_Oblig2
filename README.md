@@ -54,6 +54,11 @@ spreadserver 172.20.10.3 // inet
 
 ```
 
+### Jar file
+Navigate to: oblig2/out/artifacts/oblig2_jar and run:
+`java -jar oblig2.jar 172.20.10.3 replicaGroup 2 Rep1 Rep1.txt`
+<b>please note that .jar file can not be executed without files correctly located</b>
+
 ### How to run spread server on Ubuntu
 1. Navigate to `spread-src-4.0.0/`
 2. Run `./daemon/spread -n spreadserver -c ../spread.conf`

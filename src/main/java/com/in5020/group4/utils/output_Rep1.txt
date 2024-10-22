@@ -1,0 +1,294 @@
+Member info: 
+Rep1 43717
+Rep2 12293
+Quick Balance: 0.0
+deposit 100
+checkTxStatus Rep1 0 has not been executed yet
+Synced Balance Correct: 0.0
+Quick Balance: 0.0
+deposit 100
+Quick Balance: 0.0
+Sleep: 6 seconds
+addInterest 10
+Synced Balance Correct: 400.0
+deposit 100
+deposit 50
+deposit 40
+deposit 30
+deposit 20
+deposit 10
+addInterest 10
+Sleep: 7 seconds
+Quick Balance: 1181.3585000000003
+deposit 100
+deposit 100
+addInterest 20
+addInterest 10 is executed
+Member info: 
+Rep1 43717
+Rep2 12293
+Executed List:
+Rep1 1:deposit
+Rep1 2:deposit
+Rep2 1:deposit
+Rep2 2:deposit
+Rep1 4:addInterest 10
+Rep1 5:deposit
+Rep1 6:deposit
+Rep1 7:deposit
+Rep1 8:deposit
+Rep1 9:deposit
+Rep1 10:deposit
+Rep1 11:addInterest 10
+Rep2 4:addInterest 5
+Rep2 5:deposit
+Rep2 6:deposit
+Rep2 7:deposit
+Rep2 8:deposit
+Rep2 9:deposit
+Rep2 10:deposit
+Rep2 11:addInterest 3
+Outstanding collection:
+Rep1 12:getSyncedBalance
+Rep1 13:deposit
+Rep1 14:deposit
+Rep1 15:addInterest 20
+Executing clean history
+deposit 100
+Sleep: 8 seconds
+Quick Balance: 2298.3932200000004
+Sleep: 30 seconds
+Quick Balance: 2298.3932200000004
+Executed List:
+Rep1 13:deposit
+Rep1 14:deposit
+Rep1 15:addInterest 20
+Rep1 16:deposit
+Rep2 13:deposit
+Rep2 14:deposit
+Rep2 15:addInterest 10
+Rep2 16:deposit
+Outstanding collection:
+Rep1 18:getSyncedBalance
+Exit
+Member info: 
+Rep1  6525
+Rep2  1306
+Rep3  1522
+Quick Balance: 0.0
+deposit 100
+checkTxStatus Rep1 0 has not been executed yet
+Quick Balance: 220.0
+deposit 100
+Quick Balance: 220.0
+Sleep: 6 seconds
+addInterest 10
+Synced Balance Correct: 814.25
+deposit 100
+deposit 50
+deposit 40
+deposit 30
+deposit 20
+deposit 10
+addInterest 10
+Sleep: 7 seconds
+Synced Balance Correct: 1410.8100000000002
+Quick Balance: 1410.8100000000002
+deposit 100
+deposit 100
+addInterest 20
+checkTxStatus Rep1 11 has not been executed yet
+Member info: 
+Rep1  6525
+Rep2  1306
+Executed List:
+Rep1 1:deposit
+Rep2 1:deposit
+Rep3 1:deposit
+Rep1 3:deposit
+Rep2 3:deposit
+Rep3 3:addInterest 30
+Rep2 5:addInterest 5
+Rep3 5:deposit
+Rep1 5:addInterest 10
+Rep3 6:deposit
+Rep1 6:deposit
+Rep1 7:deposit
+Rep3 7:deposit
+Rep1 8:deposit
+Rep3 8:deposit
+Rep3 9:addInterest 20
+Outstanding collection:
+Rep1 9:deposit
+Rep1 10:deposit
+Rep1 11:deposit
+Rep1 12:addInterest 10
+Rep1 13:deposit
+Rep1 14:deposit
+Rep1 15:addInterest 20
+Executing clean history
+deposit 100
+Sleep: 8 seconds
+Synced Balance Correct: 1410.8100000000002
+Quick Balance: 1410.8100000000002
+Sleep: 30 seconds
+Member info: 
+Rep1 41883
+Rep2 10451
+Rep3 15580
+Quick Balance: 0.0
+deposit 100
+checkTxStatus Rep1 0 has not been executed yet
+Synced Balance Correct: 0.0
+Quick Balance: 0.0
+deposit 100
+Quick Balance: 0.0
+Sleep: 6 seconds
+addInterest 10
+Synced Balance Correct: 400.0
+deposit 100
+deposit 50
+deposit 40
+deposit 30
+deposit 20
+deposit 10
+addInterest 10
+Sleep: 7 seconds
+Quick Balance: 1231.3585000000003
+deposit 100
+deposit 100
+addInterest 20
+addInterest 10 is executed
+Member info: 
+Rep1 41883
+Rep2 10451
+Rep3 15580
+Executed List:
+Rep1 1:deposit
+Rep1 2:deposit
+Rep2 1:deposit
+Rep2 2:deposit
+Rep1 4:addInterest 10
+Rep1 5:deposit
+Rep1 6:deposit
+Rep1 7:deposit
+Rep1 8:deposit
+Rep1 9:deposit
+Rep1 10:deposit
+Rep1 11:addInterest 10
+Rep2 4:addInterest 5
+Rep2 5:deposit
+Rep2 6:deposit
+Rep2 7:deposit
+Rep2 8:deposit
+Rep2 9:deposit
+Rep2 10:deposit
+Rep2 11:addInterest 3
+Rep3 1:deposit
+Outstanding collection:
+Rep1 12:getSyncedBalance
+Rep1 13:deposit
+Rep1 14:deposit
+Rep1 15:addInterest 20
+Executing clean history
+deposit 100
+Sleep: 8 seconds
+Synced Balance Correct: 1231.3585000000003
+Quick Balance: 1231.3585000000003
+Sleep: 30 seconds
+Synced Balance Correct: 2268.9192600000006
+Quick Balance: 2268.9192600000006
+Executed List:
+Rep3 3:addInterest 30
+Rep3 4:deposit
+Rep3 5:deposit
+Rep3 6:deposit
+Rep3 7:deposit
+Rep3 8:addInterest 20
+Outstanding collection:
+Rep1 13:deposit
+Rep1 14:deposit
+Rep1 15:addInterest 20
+Rep1 16:deposit
+Exit
+BALANCE: 2268.9192600000006
+Member info: 
+Rep1 13954
+Rep2  5712
+Rep3  1273
+Quick Balance: 0.0
+deposit 100
+checkTxStatus Rep1 0 has not been executed yet
+Synced Balance Correct: 0.0
+Quick Balance: 0.0
+deposit 100
+Quick Balance: 0.0
+Sleep: 6 seconds
+addInterest 10
+Synced Balance Correct: 400.0
+deposit 100
+deposit 50
+deposit 40
+deposit 30
+deposit 20
+deposit 10
+addInterest 10
+Sleep: 7 seconds
+Quick Balance: 1276.6210000000003
+deposit 100
+deposit 100
+addInterest 20
+addInterest 10 is executed
+Member info: 
+Rep1 13954
+Rep2  5712
+Rep3  1273
+Executed List:
+Rep2 1:deposit
+Rep2 2:deposit
+Rep1 1:deposit
+Rep1 2:deposit
+Rep2 4:addInterest 5
+Rep2 5:deposit
+Rep2 6:deposit
+Rep2 7:deposit
+Rep2 8:deposit
+Rep2 9:deposit
+Rep1 4:addInterest 10
+Rep2 10:deposit
+Rep1 5:deposit
+Rep2 11:addInterest 3
+Rep1 6:deposit
+Rep1 7:deposit
+Rep1 8:deposit
+Rep1 9:deposit
+Rep1 10:deposit
+Rep1 11:addInterest 10
+Rep3 1:deposit
+Outstanding collection:
+Rep1 12:getSyncedBalance
+Rep1 13:deposit
+Rep1 14:deposit
+Rep1 15:addInterest 20
+Executing clean history
+deposit 100
+Sleep: 8 seconds
+Synced Balance Correct: 1276.6210000000003
+Quick Balance: 1276.6210000000003
+Sleep: 30 seconds
+Synced Balance Correct: 2339.5287600000006
+Quick Balance: 2339.5287600000006
+Executed List:
+Rep3 3:addInterest 30
+Rep3 4:deposit
+Rep3 5:deposit
+Rep3 6:deposit
+Rep3 7:deposit
+Rep3 8:addInterest 20
+Outstanding collection:
+Rep1 13:deposit
+Rep1 14:deposit
+Rep1 15:addInterest 20
+Rep1 16:deposit
+Exit
+BALANCE: 2339.5287600000006

@@ -1,0 +1,99 @@
+Member info:
+Rep1  6525
+Rep2  1306
+Rep3  1522
+Quick Balance: 0.0
+deposit 50
+Quick Balance: 220.0
+Sleep: 10 seconds
+addInterest 30
+deposit 200
+deposit 10
+deposit 30
+deposit 50
+addInterest 20
+Sleep: 9 seconds
+Member info:
+Rep1  6525
+Rep2  1306
+Rep3  1522
+Quick Balance: 1410.8100000000002
+Sleep: 30 seconds
+Quick Balance: 1410.8100000000002
+Executed List:
+Rep1 1:deposit
+Rep2 1:deposit
+Rep3 1:deposit
+Rep1 3:deposit
+Rep2 3:deposit
+Rep3 3:addInterest 30
+Rep2 5:addInterest 5
+Rep3 5:deposit
+Rep1 5:addInterest 10
+Rep3 6:deposit
+Rep1 6:deposit
+Rep1 7:deposit
+Rep3 7:deposit
+Rep1 8:deposit
+Rep3 8:deposit
+Rep3 9:addInterest 20
+Outstanding collection:
+Rep3 11:getSyncedBalance
+Exit
+BALANCE: 1410.8100000000002
+Member info:
+Rep1 41883
+Rep2 10451
+Rep3 15580
+Quick Balance: 400.0
+deposit 50
+Quick Balance: 400.0
+Sleep: 10 seconds
+addInterest 30
+Synced Balance Correct: 1231.3585000000003
+deposit 200
+deposit 10
+deposit 30
+deposit 50
+addInterest 20
+Sleep: 9 seconds
+Member info:
+Rep1 41883
+Rep2 10451
+Rep3 15580
+Synced Balance Correct: 1231.3585000000003
+Quick Balance: 1231.3585000000003
+Sleep: 30 seconds
+Quick Balance: 2268.9192600000006
+Executed List:
+Rep1 1:deposit
+Rep1 2:deposit
+Rep2 1:deposit
+Rep2 2:deposit
+Rep1 4:addInterest 10
+Rep1 5:deposit
+Rep1 6:deposit
+Rep1 7:deposit
+Rep1 8:deposit
+Rep1 9:deposit
+Rep1 10:deposit
+Rep1 11:addInterest 10
+Rep2 4:addInterest 5
+Rep2 5:deposit
+Rep2 6:deposit
+Rep2 7:deposit
+Rep2 8:deposit
+Rep2 9:deposit
+Rep2 10:deposit
+Rep2 11:addInterest 3
+Rep3 1:deposit
+Rep3 3:addInterest 30
+Rep3 4:deposit
+Rep3 5:deposit
+Rep3 6:deposit
+Rep3 7:deposit
+Rep3 8:addInterest 20
+Outstanding collection:
+Rep3 9:getSyncedBalance
+Exit
+BALANCE: 2268.9192600000006
