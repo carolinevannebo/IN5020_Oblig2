@@ -51,6 +51,7 @@ public class ReplicatedStateMachine {
             serverAddress = "127.0.0.1";
             accountName = "replicaGroup";
             numberOfReplicas = 2;
+            // todo: set CLI mode
         }
 
         print("fileName: " + fileName);
@@ -251,32 +252,40 @@ public class ReplicatedStateMachine {
             }
             case "gethistory": {
                 print(input);
-//                List<Transaction> executedTransactions = replica.getExecutedTransactions();
-//                Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
-//
-//                if (!executedTransactions.isEmpty()) {
-//                    print("\nExecuted List:");
-//                    for (Transaction transaction : executedTransactions) {
-//                        System.out.println(transaction.getUniqueId() + ":" + transaction.getCommand());
-//                    }
-//                }
-//
-//                if (!outstandingCollection.isEmpty()) {
-//                    print("\nOutstanding collection:");
-//                    for (Transaction transaction : outstandingCollection) {
-//                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
-//                    }
-//                }
+
+                List<Transaction> executedTransactions = replica.getExecutedTransactions();
+                if (!executedTransactions.isEmpty()) {
+                    print("Executed List:");
+                    for (Transaction transaction : executedTransactions) {
+                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
+                    }
+                }
+
+                Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
+                if (!outstandingCollection.isEmpty()) {
+                    print("Outstanding collection:");
+                    for (Transaction transaction : outstandingCollection) {
+                        print(transaction.getUniqueId() + ":" + transaction.getCommand());
+                    }
+                }
                 break;
             }
             case "checktxstatus": {
                 print(input);
+                String[] args = input.split(" ");
+                String transactionId = args[1] + " " + args[2];
+                Transaction transactionExecuted = replica.getExecutedTransactions().stream()
+                        .filter(it -> it.getUniqueId().equals(transactionId)).findFirst().orElse(null);
+                if (transactionExecuted != null) {
+                    print(transactionExecuted.getCommand() + " is executed");
+                } else {
+                    print(input + " has not been executed yet");
+                }
                 break;
             }
             case "cleanhistory": {
                 print("Executing clean history");
                 replica.setExecutedTransactions(new ArrayList<>());
-                replica.setOrderCounter(new AtomicInteger(0));
                 break;
             }
             case "memberinfo": {
@@ -289,7 +298,7 @@ public class ReplicatedStateMachine {
                     int time = Integer.parseInt(args[1]);
 
                     print("Sleep: " + time + " seconds");
-                    Thread.sleep(time);
+                    Thread.sleep(time * 1000);
                 }
                 break;
             }

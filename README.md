@@ -12,19 +12,21 @@
 - [x] Implement file reader - Caroline
 - [x] getQuickBalance - Liang
 - [ ] getSyncedBalance (naive implementation) - TBD
-- [ ] getSyncedBalance (correct implementation) - TBD
+- [x] getSyncedBalance (correct implementation) - TBD
 - [x] deposit <amount> - Liang
 - [x] addInterest <percent> - Liang
-- [ ] getHistory - Liang
-- [ ] checkTxStatus <Transaction.unique_id> - Caroline
+- [x] getHistory - Liang
+- [x] checkTxStatus <Transaction.unique_id> - Caroline
 - [x] cleanHistory - Caroline
 - [ ] memberInfo - Caroline
 - [x] sleep <duration> - Liang
-- [x] exit - Liang
+- [ ] exit needs to wait for all executions to finish - Liang
 - [ ] If the optional argument of [file name] is not present, the client will
   interactively accept commands from the user through a command line. If [file name] is
   present, then the client will perform batch processing of commands that it will read from [file
   name] every T seconds and exit. T is a random float number between 0.5-1.5s.
+- [ ] After initializing balance to 0.0, the client should handle new joins by setting the state of the new replica, and the
+  state should be consistent across all the replicas: the balance of all replicas should be the same
 - [ ] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
 
