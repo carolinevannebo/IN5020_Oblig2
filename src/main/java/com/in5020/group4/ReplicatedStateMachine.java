@@ -8,7 +8,6 @@ import spread.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,8 +20,8 @@ public class ReplicatedStateMachine {
     private static String accountName;
     public static int numberOfReplicas;
 
-    public static SpreadGroup[] replicas;
     public static Client replica;
+    public static SpreadGroup[] replicas;
     private static String replicaName;
 
     public static AdvancedListener advancedListener;
@@ -33,8 +32,8 @@ public class ReplicatedStateMachine {
     public static boolean allReplicasPresent = false;
 
     public ReplicatedStateMachine(String[] args) {
-        replicas =  new SpreadGroup[0];
         fileName = null; // remember to handle filename by coding clients or terminal
+        replicas =  new SpreadGroup[0];
         replica = new Client(0.0,
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -47,6 +46,7 @@ public class ReplicatedStateMachine {
             accountName = args[1];
             numberOfReplicas = Integer.parseInt(args[2]);
             replicaName = args[3];
+
             if (args.length > 4) fileName = args[4];
             // todo: else, set CLI mode
         } else {
@@ -79,7 +79,7 @@ public class ReplicatedStateMachine {
             print("listener added");
 
             connection.connect(InetAddress.getByName(serverAddress),
-                    4803, String.valueOf(id), false, true);
+                    4803, replicaName, false, true);
             print("connected");
 
             joinGroup();
@@ -287,8 +287,11 @@ public class ReplicatedStateMachine {
                 break;
             }
             case "memberinfo": {
-                print(input);
-
+                System.out.print("[ReplicatedStateMachine]: Member info: ");
+                for (Object replicaName : Arrays.stream(replicas).toArray()) {
+                    System.out.print(replicaName + " ");
+                }
+                System.out.println();
                 break;
             }
             case "sleep": {

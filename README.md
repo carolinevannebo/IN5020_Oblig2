@@ -18,7 +18,7 @@
 - [x] getHistory - Liang
 - [x] checkTxStatus <Transaction.unique_id> - Liang
 - [x] cleanHistory - Caroline
-- [ ] memberInfo - Caroline
+- [x] memberInfo - Caroline
 - [x] sleep <duration> - Liang
 - [ ] exit needs to wait for all executions to finish - Caroline
 - [ ] If the optional argument of [file name] is not present, the client will
