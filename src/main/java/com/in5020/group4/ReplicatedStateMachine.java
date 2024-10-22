@@ -8,6 +8,7 @@ import spread.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,24 +48,21 @@ public class ReplicatedStateMachine {
             numberOfReplicas = Integer.parseInt(args[2]);
             replicaName = args[3];
             if (args.length > 4) fileName = args[4];
+            // todo: else, set CLI mode
         } else {
-            serverAddress = "127.0.0.1";
-            accountName = "replicaGroup";
-            numberOfReplicas = 2;
-            // todo: set CLI mode
+            System.out.println(" ----- MISSING ARGUMENTS -----");
+            System.out.println("Please provide the following arguments:");
+            System.out.println("<serverAddress> <accountName> <numberOfReplicas> <replicaName> <fileName>");
+            System.out.println("\nExample:");
+            System.out.println("172.20.10.3 replicaGroup 3 Rep1 Rep1.txt");
+            System.exit(0);
         }
-
-        print("fileName: " + fileName);
-        print("serverAddress: " + serverAddress);
-        print("accountName: " + accountName);
-        print("numberOfReplicas: " + numberOfReplicas);
 
         connect();
         readInput();
         //after outstandingCollection is empty: stopExecutor(); ??
         // print balance - should be equal to other replicas
         print("Balance: " + replica.getQuickBalance());
-
     }
 
     public static void main(String[] args) {
@@ -290,6 +288,7 @@ public class ReplicatedStateMachine {
             }
             case "memberinfo": {
                 print(input);
+
                 break;
             }
             case "sleep": {
