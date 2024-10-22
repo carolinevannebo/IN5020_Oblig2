@@ -34,7 +34,7 @@ public class ReplicatedStateMachine {
     public ReplicatedStateMachine(String[] args) {
         fileName = null; // remember to handle filename by coding clients or terminal
         replicas =  new SpreadGroup[0];
-        replica = new Client(1000.0,
+        replica = new Client(0.0,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new AtomicInteger(0),
