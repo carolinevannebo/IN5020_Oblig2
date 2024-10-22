@@ -31,28 +31,27 @@ public class Client {
     public void getSyncedBalance(Transaction transaction) {
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
-                .findFirst()
-                .ifPresent(this.outstandingCollection::remove);  // Remove if transaction is found
+                .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
 
-        System.out.println("Synced Balance: " + this.balance);
+        print("Synced Balance: " + this.balance);
     }
 
+    // todo: only need transaction param
     public void deposit(Transaction transaction, double amount) {
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
-                .findFirst()
-                .ifPresent(this.outstandingCollection::remove);
+                .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
 
         this.balance += amount;
         this.executedList.add(transaction);
         this.orderCounter.incrementAndGet();
     }
 
+    // todo: only need transaction param - ALSO: check math, might be reason numbers are too high
     public void addInterest(Transaction transaction, double percent) {
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
-                .findFirst()
-                .ifPresent(this.outstandingCollection::remove);
+                .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
 
         this.balance *= (1.0 + percent / 100.0);
         this.executedList.add(transaction);
@@ -116,7 +115,7 @@ public class Client {
     }
 
     public void print(String message) {
-        System.out.println("[Client] " + message);
+        System.out.println("[Client]: " + message);
     }
 
     public void sayHello(String replicaName) {
