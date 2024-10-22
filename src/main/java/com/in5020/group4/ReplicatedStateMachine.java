@@ -30,10 +30,8 @@ public class ReplicatedStateMachine {
 
     private static ScheduledExecutorService inputExecutor;
     private static ScheduledExecutorService broadcastingExecutor;
-    private static Transaction lastTransaction;
 
     public ReplicatedStateMachine(String[] args) {
-        lastTransaction = null;
         fileName = null;
         replicas =  new SpreadGroup[0];
         replica = new Client(0.0,
@@ -61,9 +59,7 @@ public class ReplicatedStateMachine {
 
         connect();
         readInput();
-        //startBroadcastingExecutor();
-//        inputThread.start();
-//        broadcastingThread.start();
+        startBroadcastingExecutor();
         print("Balance: " + replica.getQuickBalance());
     }
 
@@ -104,20 +100,20 @@ public class ReplicatedStateMachine {
         replica.sayHello(replicaName);
     }
 
-//    private static synchronized void startBroadcastingExecutor() {
-//        broadcastingExecutor = Executors.newSingleThreadScheduledExecutor();
-//        Collection<Transaction> outStandingCollection = replica.getOutstandingCollection();
-//        synchronized (outStandingCollection) {
-//            broadcastingExecutor.scheduleAtFixedRate(() -> {
-//                    if (!outStandingCollection.isEmpty()) {
-//                        print("Client " + replicaName + " has " + outStandingCollection.size() + " outstanding transactions");
-//                        for (Transaction transaction : outStandingCollection) {
-//                            sendMessage(transaction);
-//                        }
-//                    }
-//            }, 0, 2, TimeUnit.SECONDS);
-//        }
-//    }
+    private static synchronized void startBroadcastingExecutor() {
+        broadcastingExecutor = Executors.newSingleThreadScheduledExecutor();
+        Collection<Transaction> outStandingCollection = replica.getOutstandingCollection();
+        synchronized (outStandingCollection) {
+            broadcastingExecutor.scheduleAtFixedRate(() -> {
+                    if (!outStandingCollection.isEmpty()) {
+                        print("Client " + replicaName + " has " + outStandingCollection.size() + " outstanding transactions");
+                        for (Transaction transaction : outStandingCollection) {
+                            sendMessage(transaction);
+                        }
+                    }
+            }, 0, 2, TimeUnit.SECONDS);
+        }
+    }
 
     private static void stopExecutor(ScheduledExecutorService executor) {
         if (executor != null && !executor.isShutdown()) {
@@ -188,7 +184,6 @@ public class ReplicatedStateMachine {
             message.setObject(transaction);
             print("Sending message, transaction id: " + transaction.uniqueId);
             connection.multicast(message);
-            lastTransaction = transaction;
         } catch (SpreadException e) {
             System.out.println("[Error]: " + e.getMessage());
         }
@@ -227,7 +222,7 @@ public class ReplicatedStateMachine {
                     transaction.setType(TransactionType.SYNCED_BALANCE);
 
                     replica.addOutstandingCollection(transaction);
-                    sendMessage(transaction);
+                    //sendMessage(transaction);
                 } else {
                     print("Synced Balance Correct: " + replica.getQuickBalance());
                 }
@@ -246,7 +241,7 @@ public class ReplicatedStateMachine {
                     transaction.setType(TransactionType.DEPOSIT);
 
                     replica.addOutstandingCollection(transaction);
-                    sendMessage(transaction);
+                    //sendMessage(transaction);
                 }
                 break;
             }
@@ -263,7 +258,7 @@ public class ReplicatedStateMachine {
                     transaction.setType(TransactionType.INTEREST);
 
                     replica.addOutstandingCollection(transaction);
-                    sendMessage(transaction);
+                    //sendMessage(transaction);
                 }
                 break;
             }
@@ -358,7 +353,7 @@ public class ReplicatedStateMachine {
 
             print("Stopping executors...");
             stopExecutor(inputExecutor);
-            //stopExecutor(broadcastingExecutor);
+            stopExecutor(broadcastingExecutor);
 //            inputThread.interrupt();
 //            broadcastingThread.interrupt();
 
