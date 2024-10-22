@@ -48,7 +48,7 @@ public class Client {
         this.orderCounter.incrementAndGet();
     }
 
-    public void addInterest(Transaction transaction, int percent) {
+    public void addInterest(Transaction transaction, double percent) {
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst()

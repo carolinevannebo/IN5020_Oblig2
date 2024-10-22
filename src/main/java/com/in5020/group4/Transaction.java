@@ -9,6 +9,7 @@ public class Transaction implements Serializable {
     public String uniqueId;
     public String command;
     private double balance;
+    private double percent;
     private TransactionType type;
 
     public Transaction() {}
@@ -35,6 +36,14 @@ public class Transaction implements Serializable {
 
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    public void setPercent(double percent) {
+        this.percent = percent;
+    }
+
+    public double getPercent() {
+        return percent;
     }
 
     public double getBalance() {

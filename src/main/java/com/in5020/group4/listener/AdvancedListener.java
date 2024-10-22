@@ -20,7 +20,10 @@ public class AdvancedListener implements AdvancedMessageListener {
                     ReplicatedStateMachine.replica.deposit(transaction, transaction.getBalance());
                     print("got notified to deposit from other replica");
                 }
-                case INTEREST -> print("got notified to interest from other replica");
+                case INTEREST -> {
+                    ReplicatedStateMachine.replica.addInterest(transaction, transaction.getPercent());
+                    print("got notified to interest from other replica");
+                }
                 case SYNCED_BALANCE -> print("got notified to balance from other replica");
                 default -> print("Regular message received: " + transaction.command);
             }

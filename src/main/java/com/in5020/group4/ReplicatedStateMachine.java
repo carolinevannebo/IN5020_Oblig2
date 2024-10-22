@@ -45,7 +45,8 @@ public class ReplicatedStateMachine {
             serverAddress = args[0];
             accountName = args[1];
             numberOfReplicas = Integer.parseInt(args[2]);
-            if (args.length > 3) fileName = args[3];
+            replicaName = args[3];
+            if (args.length > 4) fileName = args[4];
         } else {
             serverAddress = "127.0.0.1";
             accountName = "replicaGroup";
@@ -109,11 +110,14 @@ public class ReplicatedStateMachine {
 
     private void joinGroup() throws SpreadException, InterruptedIOException {
         group.join(connection, accountName);
-        replicaName = connection.getPrivateGroup().toString();
+        //replicaName = connection.getPrivateGroup().toString();
         replica.sayHello(replicaName);
     }
 
     private static synchronized void startExecutor() {
+        long initialDelay = 0;
+        if (replicaName.equals("Rep3")) initialDelay = 15;
+
         scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         Collection<Transaction> outStandingCollection = replica.getOutstandingCollection();
         System.out.println("[Executor]: outstanding collection size " + outStandingCollection.size());
@@ -124,7 +128,7 @@ public class ReplicatedStateMachine {
             for (Transaction transaction : outStandingCollection) {
                 scheduledExecutor.scheduleAtFixedRate(() -> {
                     sendMessage(transaction);
-                }, 10, 10, TimeUnit.SECONDS);
+                }, initialDelay, 10, TimeUnit.SECONDS);
             }
             outStandingCollection.clear();
         }
@@ -195,14 +199,34 @@ public class ReplicatedStateMachine {
             print("Quick Balance: " + replica.getQuickBalance());
 
         } else if (input.equalsIgnoreCase("getSyncedBalance")) {
+            // Naive
             print("\n" + input);
-            Transaction transaction = new Transaction();
-            transaction.setCommand(input);
-            transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
-            transaction.setType(TransactionType.NONE);
+            new Thread(() -> {
+                synchronized (replica.getOutstandingCollection()) {
+                    while (!replica.getOutstandingCollection().isEmpty()) {
+                        try {
+                            replica.getOutstandingCollection().wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    synchronized (replica.getOutstandingCollection()) {
+                        print("Synced Balance Naive: " + replica.getQuickBalance());
+                    }
+                }
+            });
+            // Correct
+            print("\n" + input);
+            if (replica.getOutstandingCollection().isEmpty()) {
+                Transaction transaction = new Transaction();
+                transaction.setCommand(input);
+                transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
+                transaction.setType(TransactionType.NONE);
+                replica.addOutstandingCollection(transaction);
+            } else {
+                print("Synced Balance Correct: " + replica.getQuickBalance());
+            }
 
-            replica.getSyncedBalance(transaction);
-            replica.addOutstandingCollection(transaction);
         } else if (input.matches("deposit \\d+(\\.\\d+)?")) {
             print("\n" + input);
             String[] args = input.split(" ");
@@ -220,11 +244,12 @@ public class ReplicatedStateMachine {
         } else if (input.matches("addInterest \\d+(\\.\\d+)?")) {
             print("\n" + input);
             String[] args = input.split(" ");
-            int percent = Integer.parseInt(args[1]);
+            double percent = Double.parseDouble(args[1]);
 
             Transaction transaction = new Transaction();
             transaction.setCommand(input);
             transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
+            transaction.setPercent(percent);
             transaction.setType(TransactionType.INTEREST);
 
             replica.addInterest(transaction, percent);
