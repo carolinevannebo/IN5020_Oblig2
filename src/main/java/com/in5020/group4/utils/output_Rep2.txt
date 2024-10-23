@@ -1,6 +1,6 @@
 Member info: 
-Rep1-2058
-Rep2 18487
+Rep1 29156
+Rep2 36330
 Quick Balance: 0.0
 deposit 70
 checkTxStatus Rep2 0 has not been executed yet
@@ -24,8 +24,8 @@ deposit 130
 addInterest 10
 checkTxStatus Rep2 11 has not been executed yet
 Member info: 
-Rep1-2058
-Rep2 18487
+Rep1 29156
+Rep2 36330
 Executed List:
 Rep1 1:deposit
 Rep1 2:deposit
@@ -56,15 +56,15 @@ Executing clean history
 deposit 90
 Synced Balance Correct: 1135.9355
 Quick Balance: 1135.9355
-Quick Balance: 3719.1423816
+Quick Balance: 3748.1583816
 Executed List:
 Rep1 12:deposit
-Rep1 13:deposit
 Rep2 12:deposit
-Rep1 14:addInterest 20
+Rep1 13:deposit
 Rep2 13:deposit
-Rep1 15:deposit
+Rep1 14:addInterest 20
 Rep2 14:addInterest 10
+Rep1 15:deposit
 Rep2 15:deposit
 Rep3 1:deposit
 Rep3 2:addInterest 30
@@ -78,4 +78,4 @@ Rep3 9:addInterest 20
 Outstanding collection:
 Rep2 16:getSyncedBalance
 Exit
-BALANCE: 3719.1423816
+BALANCE: 3748.1583816
