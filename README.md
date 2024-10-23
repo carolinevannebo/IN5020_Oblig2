@@ -33,7 +33,7 @@
 
 - [x] <b>The client supports a single bank account with sequentially consistent replication semantics</b> (all the replicas that do
   not fail go through the same sequence of changes and end up with the same balance value)
-- [x] Replicas should print the same balance by the end of program execution
+- [x] Replicas should print the same balance by the end of program execution, within expected range
 - [ ] Ready to deploy jar file
 
 <b>Note1:</b> balance of the account can be negative.
@@ -41,9 +41,9 @@
 between clients. Only consider the consistent view.
 
 ### Run configurations
-- Replica 1 `172.20.10.3 replicaGroup 3 Rep1.txt`
-- Replica 2 `172.20.10.3 replicaGroup 3 Rep2.txt`
-- Replica 3 `172.20.10.3 replicaGroup 3 Rep3.txt`
+- Replica 1 `172.20.10.3 replicaGroup 2 Rep1.txt`
+- Replica 2 `172.20.10.3 replicaGroup 2 Rep2.txt`
+- Replica 3 `172.20.10.3 replicaGroup 2 Rep3.txt`
 
 <b>Note:</b> Check the ip on Ubuntu machine using `ifconfig` in terminal, then change the `spread.conf` file as needed.
 Example:
@@ -83,6 +83,10 @@ and interest are executed (removed from outstandingCollection).
 But in this case, other threads would be stuck for getting resources due to the locked thread of getSyncedBalance. 
 In the correct implementation, we don't directly stop getSyncedBalance when adding deposit and interest are not executed, 
 instead, we put getSyncedBalance into outstandingCollection and execute it in the  outstandingCollection instead of executing it immediately.
+
+### About output files
+- Under /utils you can find the output files, the `broadcast_output_Rep.txt` files are logging what each replica receives by broadcasting
+- Under the same folder are some `output_Rep.txt` files which are logging more of the execution
 
 ### About the spread library
 It consists of 12 classes. The important ones are:
