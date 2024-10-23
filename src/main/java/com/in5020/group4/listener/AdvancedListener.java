@@ -6,12 +6,24 @@ import com.in5020.group4.utils.TransactionType;
 import spread.AdvancedMessageListener;
 import spread.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AdvancedListener implements AdvancedMessageListener {
     private final AtomicBoolean alreadyInitializedBalance = new AtomicBoolean(false);
+
+    public AdvancedListener() {
+        String outputFile = System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/broadcast_output_" + ReplicatedStateMachine.replicaName + ".txt";
+        try (FileWriter fileWriter = new FileWriter(outputFile, false)) {
+            // Opening the file in write mode without appending clears the file
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void regularMessageReceived(SpreadMessage spreadMessage) {
@@ -26,40 +38,35 @@ public class AdvancedListener implements AdvancedMessageListener {
                 }
             }
 
+            String output = "";
             // receive broadcast messages and execute
             switch (transaction.getType()) {
                 case DEPOSIT -> {
                     ReplicatedStateMachine.replica.deposit(transaction, transaction.getBalance());
                     print("got notified to deposit " + transaction.getBalance() + " , transaction id: " + transaction.uniqueId); // todo: remove print statement
+                    output = transaction.getUniqueId() + " " + transaction.getCommand() + " " + transaction.getBalance();
                 }
                 case INTEREST -> {
                     ReplicatedStateMachine.replica.addInterest(transaction, transaction.getPercent());
                     print("got notified to add " + transaction.getPercent() + " % interest, transaction id: " + transaction.uniqueId); // todo: remove print statement
+                    output = transaction.getUniqueId() + " " + transaction.getCommand() + " " + transaction.getPercent();
                 }
                 case SYNCED_BALANCE -> {
                     ReplicatedStateMachine.replica.getSyncedBalance(transaction);
                     print("got notified to get synced balance, transaction id: " + transaction.uniqueId); // todo: remove print statement
+                    output = transaction.getUniqueId() + " " + transaction.getCommand();
                 }
                 case UPDATE_BALANCE -> {
                     if (alreadyInitializedBalance.get()) return;
 
-//                    for (Transaction executedTransaction : executedTransactions) {
-//                        if (Objects.equals(executedTransaction.getCommand(), transaction.getCommand())) {
-//                            return;
-//                        }
-//                        if (executedTransaction.getUniqueId().equals(transaction.getUniqueId())) {
-//                            return;
-//                        }
-//                        if (executedTransaction.getBalance() == transaction.getBalance()) {
-//                            return;
-//                        }
-//                    }
-                    print("got notified to update balance to " + transaction.getBalance() + ", transaction id: " + transaction.uniqueId + ", previous balance: " + ReplicatedStateMachine.replica.getQuickBalance());
                     ReplicatedStateMachine.replica.setBalance(transaction.getBalance());
+                    print("got notified to update balance to " + transaction.getBalance() + ", transaction id: " + transaction.uniqueId + ", previous balance: " + ReplicatedStateMachine.replica.getQuickBalance());
+                    output = transaction.getUniqueId() + " " + transaction.getCommand() + " " + transaction.getBalance();
                     alreadyInitializedBalance.set(true);
                 }
                 default -> print("Regular message received: " + transaction.command);
             }
+            writeOutput(output);
         } catch (SpreadException e) {
             throw new RuntimeException(e);
         }
@@ -97,6 +104,19 @@ public class AdvancedListener implements AdvancedMessageListener {
             }
         } else if (membershipInfo.isCausedByLeave() || membershipInfo.isCausedByDisconnect()) {
             ReplicatedStateMachine.replicas = membershipInfo.getMembers();
+        }
+    }
+
+    private static void writeOutput(String output) {
+        BufferedWriter writer = null;
+        String fileName = System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/broadcast_output_" + ReplicatedStateMachine.replicaName + ".txt";
+        try {
+            writer = new BufferedWriter(new FileWriter(fileName, true));
+            writer.write(output);
+            writer.newLine();
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
