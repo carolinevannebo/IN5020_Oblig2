@@ -1,11 +1,11 @@
-Rep1 16 updateBalance Rep1 1183.1455500000002
+Rep1 16 updateBalance Rep1 1135.9355
 Rep1 11 getSyncedBalance
 Rep1 12 deposit 100.0
 Rep1 13 deposit 100.0
-Rep2 11 getSyncedBalance
 Rep1 14 addInterest 20 20.0
-Rep2 12 deposit 120.0
 Rep1 15 deposit 100.0
+Rep2 11 getSyncedBalance
+Rep2 12 deposit 120.0
 Rep2 13 deposit 130.0
 Rep2 14 addInterest 10 10.0
 Rep2 15 deposit 90.0
