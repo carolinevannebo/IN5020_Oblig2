@@ -454,31 +454,23 @@ public class ReplicatedStateMachine {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                //Thread.sleep(10000L);
-                //exit();
-                //return;
             }
-//            while (replica.getOutstandingCollection().isEmpty()) {
-//                continue;
-//            }
             print("All transactions complete");
 
-            //if (replica.getOutstandingCollection().isEmpty()) {
-                print("Stopping executors...");
-                stopExecutor(inputExecutor);
-                stopExecutor(broadcastingExecutor);
+            print("Stopping executors...");
+            stopExecutor(inputExecutor);
+            stopExecutor(broadcastingExecutor);
 
-                print("Leaving spread group...");
-                group.leave();
+            print("Leaving spread group...");
+            group.leave();
 
-                try {
-                    print("Removing listener...");
-                    connection.remove(advancedListener);
-                } finally {
-                    print("Disconnecting spread server...");
-                    connection.disconnect();
-                }
-            //}
+            try {
+                print("Removing listener...");
+                connection.remove(advancedListener);
+            } finally {
+                print("Disconnecting spread server...");
+                connection.disconnect();
+            }
         } catch (SpreadException e) {
             print("BALANCE: " + replica.getQuickBalance());
             writeOutput("BALANCE: " + replica.getQuickBalance());
