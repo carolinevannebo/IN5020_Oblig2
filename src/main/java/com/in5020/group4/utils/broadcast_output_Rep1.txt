@@ -6,14 +6,14 @@ Rep1 3 addInterest 10 10.0
 Rep1 4 deposit 100.0
 Rep1 5 deposit 50.0
 Rep1 6 deposit 40.0
-Rep2 0 getSyncedBalance
 Rep1 7 deposit 30.0
-Rep2 1 deposit 70.0
 Rep1 8 deposit 20.0
-Rep2 2 deposit 130.0
 Rep1 9 deposit 10.0
-Rep2 3 addInterest 5 5.0
 Rep1 10 addInterest 10 10.0
+Rep2 0 getSyncedBalance
+Rep2 1 deposit 70.0
+Rep2 2 deposit 130.0
+Rep2 3 addInterest 5 5.0
 Rep2 4 deposit 110.0
 Rep2 5 deposit 40.0
 Rep2 6 deposit 50.0
