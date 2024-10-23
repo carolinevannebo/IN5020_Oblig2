@@ -74,6 +74,7 @@ public class AdvancedListener implements AdvancedMessageListener {
 
                 ReplicatedStateMachine.sendMessage(transaction);
 
+                // broadcast executed transactions to newly joined replica
                 if (ReplicatedStateMachine.replicas.length > ReplicatedStateMachine.numberOfReplicas) {
                     ReplicatedStateMachine.numberOfReplicas = ReplicatedStateMachine.replicas.length;
                     List<Transaction> missedTransactions = ReplicatedStateMachine.replica.getExecutedTransactions();

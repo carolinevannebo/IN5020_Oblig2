@@ -115,9 +115,6 @@ public class ReplicatedStateMachine {
                     if (!outStandingCollection.isEmpty()) {
                         print("Client " + replicaName + " has " + outStandingCollection.size() + " outstanding transactions");
                         sendMessages(outStandingCollection);
-//                        for (Transaction transaction : outStandingCollection) {
-//                            sendMessage(transaction);
-//                        }
                     }
             }, 0, 10, TimeUnit.SECONDS);
         }
