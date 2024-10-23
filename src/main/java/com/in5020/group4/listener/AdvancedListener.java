@@ -16,15 +16,11 @@ public class AdvancedListener implements AdvancedMessageListener {
             Transaction transaction = (Transaction) spreadMessage.getObject();
 
             List<Transaction> executedTransactions = ReplicatedStateMachine.replica.getExecutedTransactions();
-            if (transaction.getType().equals(TransactionType.UPDATE_BALANCE)) { // make sure balance isn't updated twice
-                for (Transaction executedTransaction : executedTransactions) {
-                    //if (executedTransaction.getCommand().equals(transaction.getCommand())) {
-                    if (executedTransaction.getUniqueId().equals(transaction.getUniqueId())) {
-                        // Command already executed
-                        return;
-                    }
+            for (Transaction executedTransaction : executedTransactions) {
+                if (executedTransaction.getUniqueId().equals(transaction.getUniqueId())) {
+                    // Command already executed
+                    return;
                 }
-                return;
             }
 
             // receive broadcast messages and execute
@@ -42,7 +38,12 @@ public class AdvancedListener implements AdvancedMessageListener {
                     print("got notified to get synced balance, transaction id: " + transaction.uniqueId); // todo: remove print statement
                 }
                 case UPDATE_BALANCE -> {
-                    print("got notified to update balance to " + transaction.getBalance() +", transaction id: " + transaction.uniqueId + ", previous balance: " + ReplicatedStateMachine.replica.getQuickBalance());
+                    for (Transaction executedTransaction : executedTransactions) {
+                        if (executedTransaction.getBalance() == transaction.getBalance()) {
+                            return;
+                        }
+                    }
+                    print("got notified to update balance to " + transaction.getBalance() + ", transaction id: " + transaction.uniqueId + ", previous balance: " + ReplicatedStateMachine.replica.getQuickBalance());
                     ReplicatedStateMachine.replica.setBalance(transaction.getBalance());
                 }
                 default -> print("Regular message received: " + transaction.command);

@@ -65,8 +65,8 @@ public class ReplicatedStateMachine {
         }
 
         connect();
-        readInput();
         startBroadcastingExecutor();
+        readInput();
     }
 
     public static void main(String[] args) {
