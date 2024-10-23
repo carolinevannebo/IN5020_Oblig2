@@ -158,7 +158,7 @@ public class ReplicatedStateMachine {
                     if (line.matches("sleep \\d+")) {
                         String[] args = line.split(" ");
                         int time = Integer.parseInt(args[1]);
-                        inputExecutor.schedule(() -> ("Sleep " + time + " seconds"), time, TimeUnit.SECONDS);
+                        inputExecutor.schedule(() -> print("Sleep " + time + " seconds"), time, TimeUnit.SECONDS);
                         try {
                             TimeUnit.SECONDS.sleep(time);
                         } catch (InterruptedException e) {
@@ -305,7 +305,6 @@ public class ReplicatedStateMachine {
                     }
                 }
 
-                //Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
                 if (!outstandingCollection.isEmpty()) {
                     print("Outstanding collection:");
                     writeOutput("Outstanding collection:");
