@@ -1,7 +1,7 @@
 package com.in5020.group4.listener;
 
 import com.in5020.group4.ReplicatedStateMachine;
-import com.in5020.group4.Transaction;
+import com.in5020.group4.utils.Transaction;
 import com.in5020.group4.utils.TransactionType;
 import spread.AdvancedMessageListener;
 import spread.*;
@@ -10,7 +10,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AdvancedListener implements AdvancedMessageListener {

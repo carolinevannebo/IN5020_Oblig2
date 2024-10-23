@@ -2,6 +2,7 @@ package com.in5020.group4;
 
 import com.in5020.group4.client.Client;
 import com.in5020.group4.listener.AdvancedListener;
+import com.in5020.group4.utils.Transaction;
 import com.in5020.group4.utils.TransactionType;
 import spread.*;
 
@@ -131,60 +132,6 @@ public class ReplicatedStateMachine {
         }
     }
 
-    /*private static void readInput() {
-        inputExecutor = Executors.newSingleThreadScheduledExecutor();
-        try {
-            if (fileName == null) {
-                // read command line input
-                while (true) {
-                    Scanner scanner = new Scanner(System.in);
-                    String input = scanner.nextLine();
-                    parseInput(input);
-                }
-            } else {
-                // read file input
-                BufferedReader bufferedReader;
-                File inputFile = new File(System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/" + fileName);
-                //File jarInputFile = new File(fileName);
-                //try {
-                    bufferedReader = new BufferedReader(new FileReader(inputFile));
-                //} catch (FileNotFoundException e) {
-                //    bufferedReader = new BufferedReader(new FileReader(jarInputFile));
-                //}
-
-                String line = "";
-                ArrayList<String> lines = new ArrayList<>();
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    lines.add(line);
-                }
-
-                inputExecutor.scheduleAtFixedRate(() -> {
-                    synchronized (lines) {
-                        if (!lines.isEmpty()) {
-                            String input = lines.remove(0);
-                            try {
-                                parseInput(input);
-                                float T = 0.5f + (float) Math.random();
-
-                                inputExecutor.wait((long) T * 1000L);
-                                //Thread.sleep((long) T);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                        } else {
-                            stopExecutor(inputExecutor);
-                        }
-                    }
-                }, 0, 1, TimeUnit.SECONDS);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
-
     private static void readInput() {
         inputExecutor = Executors.newScheduledThreadPool(1);
         try {
@@ -282,6 +229,8 @@ public class ReplicatedStateMachine {
 
     private static void parseInput(String input) throws InterruptedException {
         String command = input.split(" ")[0];  // Extract command
+        Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
+
         switch (command.toLowerCase()) {
             case "getquickbalance": {
                 print("Quick Balance: " + replica.getQuickBalance());
@@ -291,21 +240,9 @@ public class ReplicatedStateMachine {
             case "getsyncedbalance": {
                 print(input);
                 // Naive
-                new Thread(() -> {
-                    synchronized (replica.getOutstandingCollection()) {
-                        while (!replica.getOutstandingCollection().isEmpty()) {
-                            try {
-                                replica.getOutstandingCollection().wait(); // ?
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        synchronized (replica.getOutstandingCollection()) {
-                            print("Synced Balance Naive: " + replica.getQuickBalance());
-                            writeOutput("Synced Balance Naive: " + replica.getQuickBalance());
-                        }
-                    }
-                });//.start();
+//                while (!replica.getOutstandingCollection().isEmpty()) { continue; }
+//                print("Synced Balance Naive: " + replica.getQuickBalance());
+//                writeOutput("Synced Balance Naive: " + replica.getQuickBalance());
 
                 // Correct
                 if (replica.getOutstandingCollection().isEmpty()) {
@@ -314,7 +251,7 @@ public class ReplicatedStateMachine {
                     transaction.setUniqueId(replicaName + " " + replica.getOutstandingCounter());
                     transaction.setType(TransactionType.SYNCED_BALANCE);
 
-                    replica.addOutstandingCollection(transaction); // todo: output
+                    replica.addOutstandingCollection(transaction);
                 } else {
                     print("Synced Balance Correct: " + replica.getQuickBalance());
                     writeOutput("Synced Balance Correct: " + replica.getQuickBalance());
@@ -368,7 +305,7 @@ public class ReplicatedStateMachine {
                     }
                 }
 
-                Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
+                //Collection<Transaction> outstandingCollection = replica.getOutstandingCollection();
                 if (!outstandingCollection.isEmpty()) {
                     print("Outstanding collection:");
                     writeOutput("Outstanding collection:");
@@ -415,19 +352,6 @@ public class ReplicatedStateMachine {
                 System.out.println();
                 break;
             }
-            /*case "sleep": {
-                if (input.matches("sleep \\d+")) {
-                    String[] args = input.split(" ");
-                    int time = Integer.parseInt(args[1]);
-
-                    print("Sleep: " + time + " seconds");
-                    writeOutput("Sleep: " + time + " seconds");
-
-                    inputExecutor.wait(time * 1000L);
-                    //Thread.sleep(time * 1000L);
-                }
-                break;
-            }*/
             case "exit": {
                 writeOutput("Exit");
                 exit();

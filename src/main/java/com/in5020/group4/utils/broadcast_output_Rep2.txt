@@ -22,14 +22,14 @@ Rep2 8 deposit 30.0
 Rep2 9 deposit 100.0
 Rep2 10 addInterest 3 3.0
 Rep1 11 getSyncedBalance
-Rep2 11 getSyncedBalance
 Rep1 12 deposit 100.0
-Rep2 12 deposit 120.0
 Rep1 13 deposit 100.0
-Rep2 13 deposit 130.0
 Rep1 14 addInterest 20 20.0
-Rep2 14 addInterest 10 10.0
 Rep1 15 deposit 100.0
+Rep2 11 getSyncedBalance
+Rep2 12 deposit 120.0
+Rep2 13 deposit 130.0
+Rep2 14 addInterest 10 10.0
 Rep2 15 deposit 90.0
 Rep3 0 getSyncedBalance
 Rep3 1 deposit 50.0

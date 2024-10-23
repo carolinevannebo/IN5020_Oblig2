@@ -1,6 +1,6 @@
 package com.in5020.group4.client;
 
-import com.in5020.group4.Transaction;
+import com.in5020.group4.utils.Transaction;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 

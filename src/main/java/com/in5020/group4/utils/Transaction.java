@@ -1,6 +1,4 @@
-package com.in5020.group4;
-
-import com.in5020.group4.utils.TransactionType;
+package com.in5020.group4.utils;
 
 import java.io.Serializable;
 
@@ -8,8 +6,8 @@ public class Transaction implements Serializable {
     // todo: make all private
     public String uniqueId;
     public String command;
-    private double balance; // todo: rename to param
-    private double percent;
+    private double balance = 0.0;
+    private double percent = 0.0;
     private TransactionType type;
 
     public Transaction() {}
