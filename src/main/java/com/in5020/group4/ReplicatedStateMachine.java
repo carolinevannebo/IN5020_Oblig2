@@ -111,14 +111,14 @@ public class ReplicatedStateMachine {
     private static synchronized void startBroadcastingExecutor() {
         broadcastingExecutor = Executors.newSingleThreadScheduledExecutor();
         Collection<Transaction> outStandingCollection = replica.getOutstandingCollection();
-        synchronized (outStandingCollection) {
+        //synchronized (outStandingCollection) {
             broadcastingExecutor.scheduleAtFixedRate(() -> {
                     if (!outStandingCollection.isEmpty()) {
                         print("Client " + replicaName + " has " + outStandingCollection.size() + " outstanding transactions");
                         sendMessages(outStandingCollection);
                     }
             }, 0, 10, TimeUnit.SECONDS);
-        }
+        //}
     }
 
     private static void stopExecutor(ScheduledExecutorService executor) {
