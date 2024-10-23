@@ -1,6 +1,6 @@
 Member info: 
-Rep1 15058
-Rep2-7613
+Rep1-1188
+Rep2 22623
 Quick Balance: 0.0
 deposit 70
 checkTxStatus Rep2 0 has not been executed yet
@@ -24,8 +24,8 @@ deposit 130
 addInterest 10
 checkTxStatus Rep2 11 has not been executed yet
 Member info: 
-Rep1 15058
-Rep2-7613
+Rep1-1188
+Rep2 22623
 Executed List:
 Rep1 1:deposit
 Rep1 2:deposit
