@@ -1,4 +1,4 @@
-Rep1 16 updateBalance Rep1 1135.9355
+Rep1 16 updateBalance Rep1 1157.5655
 Rep1 11 getSyncedBalance
 Rep1 12 deposit 100.0
 Rep1 13 deposit 100.0

@@ -1,13 +1,13 @@
 Member info: 
-Rep1 11013
-Rep2-2800
-Rep3-2171
+Rep1-1128
+Rep2 54440
+Rep3 14511
 Quick Balance: 0.0
 deposit 50
 Quick Balance: 0.0
-Synced Balance Correct: 2238.4348600000003
+Synced Balance Correct: 2266.98646
 addInterest 30
-Synced Balance Correct: 2238.4348600000003
+Synced Balance Correct: 2266.98646
 deposit 200
 deposit -100
 deposit 10
@@ -16,12 +16,12 @@ deposit -100
 deposit 50
 addInterest 20
 Member info: 
-Rep1 11013
-Rep2-2800
-Rep3-2171
-Synced Balance Correct: 2288.4348600000003
-Quick Balance: 2288.4348600000003
-Quick Balance: 3677.9583816000004
+Rep1-1128
+Rep2 54440
+Rep3 14511
+Synced Balance Correct: 2316.98646
+Quick Balance: 2316.98646
+Quick Balance: 3722.4988776
 Executed List:
 Rep1 12:deposit
 Rep1 13:deposit
@@ -43,4 +43,4 @@ Rep3 9:addInterest 20
 Outstanding collection:
 Rep3 10:getSyncedBalance
 Exit
-BALANCE: 3677.9583816000004
+BALANCE: 3722.4988776
