@@ -1,33 +1,33 @@
 Rep1 0 updateBalance Rep1 0.0
 Rep1 0 getSyncedBalance
 Rep1 1 deposit 100.0
-Rep2 0 getSyncedBalance
 Rep1 2 deposit 100.0
-Rep2 1 deposit 70.0
 Rep1 3 addInterest 10 10.0
-Rep2 2 deposit 130.0
 Rep1 4 deposit 100.0
-Rep2 3 addInterest 5 5.0
+Rep2 0 getSyncedBalance
 Rep1 5 deposit 50.0
-Rep2 4 deposit 110.0
+Rep2 1 deposit 70.0
 Rep1 6 deposit 40.0
-Rep2 5 deposit 40.0
+Rep2 2 deposit 130.0
 Rep1 7 deposit 30.0
-Rep2 6 deposit 50.0
+Rep2 3 addInterest 5 5.0
 Rep1 8 deposit 20.0
-Rep2 7 deposit 20.0
+Rep2 4 deposit 110.0
 Rep1 9 deposit 10.0
-Rep2 8 deposit 30.0
+Rep2 5 deposit 40.0
 Rep1 10 addInterest 10 10.0
+Rep2 6 deposit 50.0
+Rep2 7 deposit 20.0
+Rep2 8 deposit 30.0
 Rep2 9 deposit 100.0
 Rep2 10 addInterest 3 3.0
 Rep1 11 getSyncedBalance
 Rep1 12 deposit 100.0
 Rep1 13 deposit 100.0
-Rep1 14 addInterest 20 20.0
-Rep1 15 deposit 100.0
 Rep2 11 getSyncedBalance
+Rep1 14 addInterest 20 20.0
 Rep2 12 deposit 120.0
+Rep1 15 deposit 100.0
 Rep2 13 deposit 130.0
 Rep2 14 addInterest 10 10.0
 Rep2 15 deposit 90.0
@@ -44,3 +44,4 @@ Rep3 8 deposit 50.0
 Rep3 9 addInterest 20 20.0
 Rep2 16 getSyncedBalance
 Rep1 17 getSyncedBalance
+BALANCE 3750.8139072

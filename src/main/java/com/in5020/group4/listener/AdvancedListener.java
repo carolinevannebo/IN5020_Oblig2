@@ -106,7 +106,7 @@ public class AdvancedListener implements AdvancedMessageListener {
         }
     }
 
-    private static void writeOutput(String output) {
+    public static void writeOutput(String output) {
         BufferedWriter writer = null;
         String fileName = System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/broadcast_output_" + ReplicatedStateMachine.replicaName + ".txt";
         try {

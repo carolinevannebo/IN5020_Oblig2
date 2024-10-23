@@ -167,7 +167,7 @@ public class ReplicatedStateMachine {
                     } else {
                         parseInput(line);
                         int T = (int) (Math.random() * 1000) + 500;
-                        inputExecutor.schedule(() -> print("T delay"), T, TimeUnit.MILLISECONDS);
+                        inputExecutor.schedule(() -> print("T delay = " + T), T, TimeUnit.MILLISECONDS);
                         try {
                             TimeUnit.MICROSECONDS.sleep(T);
                         } catch (InterruptedException e) {
@@ -399,6 +399,7 @@ public class ReplicatedStateMachine {
         } finally {
             print("BALANCE: " + replica.getQuickBalance());
             writeOutput("BALANCE: " + replica.getQuickBalance());
+            AdvancedListener.writeOutput("BALANCE " + replica.getQuickBalance());
         }
     }
 
