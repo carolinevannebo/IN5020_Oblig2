@@ -1,13 +1,13 @@
 Member info: 
-Rep1  9375
-Rep2  1868
-Rep3 13201
+Rep1-4482
+Rep2-6180
+Rep3 78899
 Quick Balance: 400.0
 deposit 50
-Quick Balance: 400.0
+Quick Balance: 1192.122
 Sleep: 10 seconds
 addInterest 30
-Synced Balance Correct: 1265.3790000000001
+Synced Balance Correct: 1731.3342000000002
 deposit 200
 deposit 10
 deposit 30
@@ -15,38 +15,38 @@ deposit 50
 addInterest 20
 Sleep: 9 seconds
 Member info: 
-Rep1  9375
-Rep2  1868
-Rep3 13201
-Quick Balance: 3247.1894880000004
+Rep1-4482
+Rep2-6180
+Rep3 78899
+Quick Balance: 3048.881352000001
 Sleep: 30 seconds
-Quick Balance: 3247.1894880000004
+Quick Balance: 3048.881352000001
 Executed List:
 Rep1 1:deposit
-Rep1 2:deposit
 Rep2 1:deposit
+Rep1 2:deposit
 Rep2 2:deposit
-Rep2 4:addInterest 5
-Rep2 5:deposit
 Rep1 4:addInterest 10
-Rep2 6:deposit
 Rep1 5:deposit
-Rep2 7:deposit
 Rep1 6:deposit
-Rep2 8:deposit
 Rep1 7:deposit
-Rep2 9:deposit
 Rep1 8:deposit
-Rep2 10:deposit
 Rep1 9:deposit
-Rep2 11:addInterest 3
+Rep2 4:addInterest 5
 Rep1 10:deposit
+Rep2 5:deposit
 Rep1 11:addInterest 10
+Rep2 6:deposit
+Rep2 7:deposit
+Rep2 8:deposit
+Rep2 9:deposit
+Rep2 10:deposit
+Rep2 11:addInterest 3
 Rep3 1:deposit
-Rep1 13:deposit
-Rep1 14:deposit
-Rep1 15:addInterest 20
-Rep1 16:deposit
+Rep2 13:deposit
+Rep2 14:deposit
+Rep2 15:addInterest 10
+Rep2 16:deposit
 Rep3 3:addInterest 30
 Rep3 4:deposit
 Rep3 5:deposit
@@ -56,4 +56,4 @@ Rep3 8:addInterest 20
 Outstanding collection:
 Rep3 10:getSyncedBalance
 Exit
-BALANCE: 3247.1894880000004
+BALANCE: 3048.881352000001

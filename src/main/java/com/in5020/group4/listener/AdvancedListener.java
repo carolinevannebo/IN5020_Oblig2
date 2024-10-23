@@ -18,7 +18,8 @@ public class AdvancedListener implements AdvancedMessageListener {
             List<Transaction> executedTransactions = ReplicatedStateMachine.replica.getExecutedTransactions();
             if (transaction.getType().equals(TransactionType.UPDATE_BALANCE)) { // make sure balance isn't updated twice
                 for (Transaction executedTransaction : executedTransactions) {
-                    if (executedTransaction.getCommand().equals(transaction.getCommand())) {
+                    //if (executedTransaction.getCommand().equals(transaction.getCommand())) {
+                    if (executedTransaction.getUniqueId().equals(transaction.getUniqueId())) {
                         // Command already executed
                         return;
                     }

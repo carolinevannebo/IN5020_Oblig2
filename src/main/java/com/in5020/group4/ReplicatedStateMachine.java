@@ -357,7 +357,8 @@ public class ReplicatedStateMachine {
                     String newReplicaName = replicaName.toString()
                             .replace("#", "")
                             .replace("spreadserver", "")
-                            .replace("-", " ");
+                            .replace("-", " ")
+                            .replace("  ", "-");
                     System.out.print(newReplicaName + " ");
                     writeOutput(newReplicaName);
                 }
@@ -390,10 +391,14 @@ public class ReplicatedStateMachine {
 
     private synchronized static void exit() {
         try {
+            if (replica.getOutstandingCollection().isEmpty()) {
             print("Have to wait for all outstanding transactions to complete");
-            while (replica.getOutstandingCollection().isEmpty()) {
-                continue;
+                Thread.sleep(1000L);
+                exit();
             }
+//            while (replica.getOutstandingCollection().isEmpty()) {
+//                continue;
+//            }
             print("All transactions complete");
 
             if (replica.getOutstandingCollection().isEmpty()) {
@@ -417,6 +422,8 @@ public class ReplicatedStateMachine {
             writeOutput("BALANCE: " + replica.getQuickBalance());
             print("Exiting environment...");
             System.exit(0);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         } finally {
             print("BALANCE: " + replica.getQuickBalance());
             writeOutput("BALANCE: " + replica.getQuickBalance());
