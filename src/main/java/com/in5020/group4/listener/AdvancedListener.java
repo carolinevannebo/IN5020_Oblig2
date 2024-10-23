@@ -6,12 +6,25 @@ import com.in5020.group4.utils.TransactionType;
 import spread.AdvancedMessageListener;
 import spread.*;
 
+import java.util.List;
+
 public class AdvancedListener implements AdvancedMessageListener {
 
     @Override
     public void regularMessageReceived(SpreadMessage spreadMessage) {
         try {
             Transaction transaction = (Transaction) spreadMessage.getObject();
+
+            List<Transaction> executedTransactions = ReplicatedStateMachine.replica.getExecutedTransactions();
+            if (transaction.getType().equals(TransactionType.UPDATE_BALANCE)) { // make sure balance isn't updated twice
+                for (Transaction executedTransaction : executedTransactions) {
+                    if (executedTransaction.getCommand().equals(transaction.getCommand())) {
+                        // Command already executed
+                        return;
+                    }
+                }
+                return;
+            }
 
             // receive broadcast messages and execute
             switch (transaction.getType()) {
@@ -60,6 +73,12 @@ public class AdvancedListener implements AdvancedMessageListener {
                 transaction.setBalance(ReplicatedStateMachine.replica.getQuickBalance());
 
                 ReplicatedStateMachine.sendMessage(transaction);
+
+                if (ReplicatedStateMachine.replicas.length > ReplicatedStateMachine.numberOfReplicas) {
+                    ReplicatedStateMachine.numberOfReplicas = ReplicatedStateMachine.replicas.length;
+                    List<Transaction> missedTransactions = ReplicatedStateMachine.replica.getExecutedTransactions();
+                    ReplicatedStateMachine.sendMessages(missedTransactions);
+                }
             }
         } else if (membershipInfo.isCausedByLeave() || membershipInfo.isCausedByDisconnect()) {
             ReplicatedStateMachine.replicas = membershipInfo.getMembers();

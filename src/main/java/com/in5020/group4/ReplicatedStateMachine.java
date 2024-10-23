@@ -57,6 +57,13 @@ public class ReplicatedStateMachine {
             System.exit(0);
         }
 
+        String outputFile = System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/output_" + replicaName + ".txt";
+        try (FileWriter fileWriter = new FileWriter(outputFile, false)) {
+            // Opening the file in write mode without appending clears the file
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         connect();
         readInput();
         startBroadcastingExecutor();
@@ -70,6 +77,7 @@ public class ReplicatedStateMachine {
         Random rand = new Random();
         int id = rand.nextInt();
         try {
+            if (replicaName.equals("Rep3")) Thread.sleep(15000);
             advancedListener = new AdvancedListener();
             connection = new SpreadConnection();
             connection.add(advancedListener);
@@ -106,9 +114,10 @@ public class ReplicatedStateMachine {
             broadcastingExecutor.scheduleAtFixedRate(() -> {
                     if (!outStandingCollection.isEmpty()) {
                         print("Client " + replicaName + " has " + outStandingCollection.size() + " outstanding transactions");
-                        for (Transaction transaction : outStandingCollection) {
-                            sendMessage(transaction);
-                        }
+                        sendMessages(outStandingCollection);
+//                        for (Transaction transaction : outStandingCollection) {
+//                            sendMessage(transaction);
+//                        }
                     }
             }, 0, 10, TimeUnit.SECONDS);
         }
@@ -128,8 +137,6 @@ public class ReplicatedStateMachine {
     }
 
     private static void readInput() {
-        long initialDelay = 0;
-        if (replicaName.equals("Rep3")) initialDelay = 15;
         inputExecutor = Executors.newSingleThreadScheduledExecutor();
 
         try {
@@ -173,7 +180,7 @@ public class ReplicatedStateMachine {
                             stopExecutor(inputExecutor);
                         }
                     }
-                }, initialDelay, 1, TimeUnit.SECONDS);
+                }, 0, 1, TimeUnit.SECONDS);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -203,6 +210,24 @@ public class ReplicatedStateMachine {
             message.setObject(transaction);
             print("Sending message, transaction id: " + transaction.uniqueId);
             connection.multicast(message);
+        } catch (SpreadException e) {
+            System.out.println("[Error]: " + e.getMessage());
+        }
+    }
+
+    public static void sendMessages(Collection<Transaction> transaction) {
+        try {
+            List<SpreadMessage> messages = new ArrayList<>();
+            SpreadMessage message;
+            for (Transaction t : transaction) {
+                message = new SpreadMessage();
+                message.addGroup(group);
+                message.setFifo();
+                message.setObject(t);
+                messages.add(message);
+            }
+            SpreadMessage[] spreadMessages = messages.toArray(new SpreadMessage[0]);
+            connection.multicast(spreadMessages);
         } catch (SpreadException e) {
             System.out.println("[Error]: " + e.getMessage());
         }
@@ -356,6 +381,7 @@ public class ReplicatedStateMachine {
             case "exit": {
                 writeOutput("Exit");
                 exit();
+                System.exit(0);
                 break;
             }
             default: {
@@ -365,28 +391,36 @@ public class ReplicatedStateMachine {
         }
     }
 
-    private static void exit() {
+    private synchronized static void exit() {
         try {
-            print("Stopping executors...");
-            stopExecutor(inputExecutor);
-            stopExecutor(broadcastingExecutor);
+            print("Have to wait for all outstanding transactions to complete");
+            while (replica.getOutstandingCollection().isEmpty()) {
+                continue;
+            }
+            print("All transactions complete");
 
-            print("Leaving spread group...");
-            group.leave();
+            if (replica.getOutstandingCollection().isEmpty()) {
+                print("Stopping executors...");
+                stopExecutor(inputExecutor);
+                stopExecutor(broadcastingExecutor);
 
-            try {
-                print("Removing listener...");
-                connection.remove(advancedListener);
-            } finally {
-                print("Disconnecting spread server...");
-                connection.disconnect();
+                print("Leaving spread group...");
+                group.leave();
+
+                try {
+                    print("Removing listener...");
+                    connection.remove(advancedListener);
+                } finally {
+                    print("Disconnecting spread server...");
+                    connection.disconnect();
+                }
             }
         } catch (SpreadException e) {
             print("BALANCE: " + replica.getQuickBalance());
             writeOutput("BALANCE: " + replica.getQuickBalance());
             print("Exiting environment...");
             System.exit(0);
-        } finally { // finally block can not complete normally
+        } finally {
             print("BALANCE: " + replica.getQuickBalance());
             writeOutput("BALANCE: " + replica.getQuickBalance());
         }

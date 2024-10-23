@@ -26,6 +26,12 @@ public class Client {
     }
 
     public void getSyncedBalance(Transaction transaction) {
+        boolean alreadyExecuted = executedList.stream()
+                .anyMatch(executedTransaction -> executedTransaction.getUniqueId()
+                        .equals(transaction.getUniqueId()));
+
+        if (alreadyExecuted) return;
+
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
@@ -35,6 +41,12 @@ public class Client {
 
     // todo: only need transaction param
     public void deposit(Transaction transaction, double amount) {
+        boolean alreadyExecuted = executedList.stream()
+                .anyMatch(executedTransaction -> executedTransaction.getUniqueId()
+                        .equals(transaction.getUniqueId()));
+
+        if (alreadyExecuted) return;
+
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
@@ -46,6 +58,12 @@ public class Client {
 
     // todo: only need transaction param - ALSO: check math, might be reason numbers are too high
     public void addInterest(Transaction transaction, double percent) {
+        boolean alreadyExecuted = executedList.stream()
+                .anyMatch(executedTransaction -> executedTransaction.getUniqueId()
+                        .equals(transaction.getUniqueId()));
+
+        if (alreadyExecuted) return;
+
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
                 .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
