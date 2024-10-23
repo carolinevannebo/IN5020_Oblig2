@@ -7,8 +7,11 @@ import spread.AdvancedMessageListener;
 import spread.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AdvancedListener implements AdvancedMessageListener {
+    private final AtomicBoolean alreadyInitializedBalance = new AtomicBoolean(false);
 
     @Override
     public void regularMessageReceived(SpreadMessage spreadMessage) {
@@ -38,13 +41,22 @@ public class AdvancedListener implements AdvancedMessageListener {
                     print("got notified to get synced balance, transaction id: " + transaction.uniqueId); // todo: remove print statement
                 }
                 case UPDATE_BALANCE -> {
-                    for (Transaction executedTransaction : executedTransactions) {
-                        if (executedTransaction.getBalance() == transaction.getBalance()) {
-                            return;
-                        }
-                    }
+                    if (alreadyInitializedBalance.get()) return;
+
+//                    for (Transaction executedTransaction : executedTransactions) {
+//                        if (Objects.equals(executedTransaction.getCommand(), transaction.getCommand())) {
+//                            return;
+//                        }
+//                        if (executedTransaction.getUniqueId().equals(transaction.getUniqueId())) {
+//                            return;
+//                        }
+//                        if (executedTransaction.getBalance() == transaction.getBalance()) {
+//                            return;
+//                        }
+//                    }
                     print("got notified to update balance to " + transaction.getBalance() + ", transaction id: " + transaction.uniqueId + ", previous balance: " + ReplicatedStateMachine.replica.getQuickBalance());
                     ReplicatedStateMachine.replica.setBalance(transaction.getBalance());
+                    alreadyInitializedBalance.set(true);
                 }
                 default -> print("Regular message received: " + transaction.command);
             }
@@ -70,7 +82,7 @@ public class AdvancedListener implements AdvancedMessageListener {
             if (!ReplicatedStateMachine.connection.getPrivateGroup().equals(joined)) { // Updating balance of newly joined replica
                 Transaction transaction = new Transaction();
                 transaction.setUniqueId(ReplicatedStateMachine.replicaName + " " + ReplicatedStateMachine.replica.getOutstandingCounter());
-                transaction.setCommand("updateBalance");
+                transaction.setCommand("updateBalance " + ReplicatedStateMachine.replicaName);
                 transaction.setType(TransactionType.UPDATE_BALANCE);
                 transaction.setBalance(ReplicatedStateMachine.replica.getQuickBalance());
 

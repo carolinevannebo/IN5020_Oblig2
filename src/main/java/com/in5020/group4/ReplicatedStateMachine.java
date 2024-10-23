@@ -30,6 +30,7 @@ public class ReplicatedStateMachine {
 
     private static ScheduledExecutorService inputExecutor;
     private static ScheduledExecutorService broadcastingExecutor;
+    private static ScheduledExecutorService exitExecutor;
 
     public ReplicatedStateMachine(String[] args) {
         fileName = null;
@@ -133,9 +134,8 @@ public class ReplicatedStateMachine {
         }
     }
 
-    private static void readInput() {
+    /*private static void readInput() {
         inputExecutor = Executors.newSingleThreadScheduledExecutor();
-
         try {
             if (fileName == null) {
                 // read command line input
@@ -169,7 +169,9 @@ public class ReplicatedStateMachine {
                             try {
                                 parseInput(input);
                                 float T = 0.5f + (float) Math.random();
-                                Thread.sleep((long) T);
+
+                                inputExecutor.wait((long) T * 1000L);
+                                //Thread.sleep((long) T);
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
@@ -178,6 +180,57 @@ public class ReplicatedStateMachine {
                         }
                     }
                 }, 0, 1, TimeUnit.SECONDS);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }*/
+
+    private static void readInput() {
+        inputExecutor = Executors.newScheduledThreadPool(1);
+        try {
+            if (fileName == null) {
+                // read command line input
+                while (true) {
+                    Scanner scanner = new Scanner(System.in);
+                    String input = scanner.nextLine();
+                    parseInput(input);
+                }
+            } else {
+                // read file input
+                BufferedReader bufferedReader;
+                File inputFile = new File(System.getProperty("user.dir") + "/src/main/java/com/in5020/group4/utils/" + fileName);
+                //File jarInputFile = new File(fileName);
+                //try {
+                bufferedReader = new BufferedReader(new FileReader(inputFile));
+                //} catch (FileNotFoundException e) {
+                //    bufferedReader = new BufferedReader(new FileReader(jarInputFile));
+                //}
+
+                String line = "";
+                while ((line = bufferedReader.readLine()) != null) {
+                    if (line.matches("sleep \\d+")) {
+                        String[] args = line.split(" ");
+                        int time = Integer.parseInt(args[1]);
+                        inputExecutor.schedule(() -> ("Sleep " + time + " seconds"), time, TimeUnit.SECONDS);
+                        try {
+                            TimeUnit.SECONDS.sleep(time);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    } else {
+                        parseInput(line);
+                        int T = (int) (Math.random() * 1000) + 500;
+                        inputExecutor.schedule(() -> print("T delay"), T, TimeUnit.MILLISECONDS);
+                        try {
+                            TimeUnit.MICROSECONDS.sleep(T);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -272,7 +325,7 @@ public class ReplicatedStateMachine {
                 break;
             }
             case "deposit": {
-                if (input.matches("deposit \\d+(\\.\\d+)?")) {
+                if (input.matches("deposit -?\\d+(\\.\\d+)?")) {
                     String[] args = input.split(" ");
                     double amount = Double.parseDouble(args[1]);
 
@@ -365,17 +418,19 @@ public class ReplicatedStateMachine {
                 System.out.println();
                 break;
             }
-            case "sleep": {
+            /*case "sleep": {
                 if (input.matches("sleep \\d+")) {
                     String[] args = input.split(" ");
                     int time = Integer.parseInt(args[1]);
 
                     print("Sleep: " + time + " seconds");
                     writeOutput("Sleep: " + time + " seconds");
-                    Thread.sleep(time * 1000L);
+
+                    inputExecutor.wait(time * 1000L);
+                    //Thread.sleep(time * 1000L);
                 }
                 break;
-            }
+            }*/
             case "exit": {
                 writeOutput("Exit");
                 exit();
@@ -391,17 +446,24 @@ public class ReplicatedStateMachine {
 
     private synchronized static void exit() {
         try {
-            if (replica.getOutstandingCollection().isEmpty()) {
-            print("Have to wait for all outstanding transactions to complete");
-                Thread.sleep(1000L);
-                exit();
+            exitExecutor = Executors.newScheduledThreadPool(1);
+            while (!replica.getOutstandingCollection().isEmpty()) {
+                exitExecutor.schedule(() -> print("Have to wait for all outstanding transactions to complete"), 1, TimeUnit.SECONDS);
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                //Thread.sleep(10000L);
+                //exit();
+                //return;
             }
 //            while (replica.getOutstandingCollection().isEmpty()) {
 //                continue;
 //            }
             print("All transactions complete");
 
-            if (replica.getOutstandingCollection().isEmpty()) {
+            //if (replica.getOutstandingCollection().isEmpty()) {
                 print("Stopping executors...");
                 stopExecutor(inputExecutor);
                 stopExecutor(broadcastingExecutor);
@@ -416,14 +478,12 @@ public class ReplicatedStateMachine {
                     print("Disconnecting spread server...");
                     connection.disconnect();
                 }
-            }
+            //}
         } catch (SpreadException e) {
             print("BALANCE: " + replica.getQuickBalance());
             writeOutput("BALANCE: " + replica.getQuickBalance());
             print("Exiting environment...");
             System.exit(0);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         } finally {
             print("BALANCE: " + replica.getQuickBalance());
             writeOutput("BALANCE: " + replica.getQuickBalance());

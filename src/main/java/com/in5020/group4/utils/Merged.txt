@@ -1,0 +1,61 @@
+Rep1: getSyncedBalance
+Rep2: getSyncedBalance
+Rep1: deposit 100
+Rep2: deposit 70
+Rep1: getSyncedBalance
+Rep2: getSyncedBalance
+Rep1: deposit 100
+Rep2: deposit 130
+---
+Rep2: getSyncedBalance
+Rep2: addInterest 5 -420
+Rep2: getSyncedBalance
+---
+Rep1: getSyncedBalance
+Rep2: deposit 110
+Rep1: addInterest 10 -583
+Rep2: deposit 40
+Rep1: getSyncedBalance
+Rep2: deposit 50
+Rep1: deposit 100
+Rep2: deposit 20
+Rep1: deposit 50
+Rep2: deposit 30
+Rep1: deposit 40
+Rep2: deposit 100
+Rep1: deposit 30
+Rep1: deposit 20 -1063
+Rep2: addInterest 3
+---
+Rep1: getSyncedBalance
+Rep2: getSyncedBalance
+Rep1: deposit 100
+Rep2: deposit 120
+Rep1: deposit 100
+Rep2: deposit 130 -1831.9
+Rep1: addInterest 20
+Rep2: addInterest 10 -2418.108
+Rep1: deposit 100
+Rep2: deposit 90
+---
+Rep1: getSyncedBalance
+Rep2: getSyncedBalance
+Rep3: getSyncedBalance
+Rep3: deposit 50 -2658.108
+---
+Rep3: getSyncedBalance
+Rep3: addInterest 30
+Rep3: getSyncedBalance
+Rep3: deposit 200
+Rep3: deposit -100
+Rep3: deposit 10
+Rep3: deposit 30
+Rep3: deposit -100 -3495.5404
+Rep3: deposit 50
+Rep3: addInterest 20
+---
+Rep1: getSyncedBalance
+Rep2: getSyncedBalance
+Rep3: getSyncedBalance
+
+=3565.5404

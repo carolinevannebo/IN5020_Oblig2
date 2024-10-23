@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Client {
     private double balance;
     private List<Transaction> executedList;
-    private Collection<Transaction> outstandingCollection;
-    private AtomicInteger orderCounter;
-    private AtomicInteger outstandingCounter;
+    private final Collection<Transaction> outstandingCollection;
+    private final AtomicInteger orderCounter;
+    private final AtomicInteger outstandingCounter;
 
     public Client(double balance, List<Transaction> executedList, Collection<Transaction> outstandingCollection, AtomicInteger orderCounter, AtomicInteger outstandingCounter) {
         this.balance = balance;
@@ -34,7 +34,7 @@ public class Client {
 
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
-                .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
+                .findFirst().ifPresent(outstandingCollection::remove);
 
         print("Synced Balance: " + this.balance);
     }
@@ -49,7 +49,7 @@ public class Client {
 
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
-                .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
+                .findFirst().ifPresent(outstandingCollection::remove);
 
         this.balance += amount;
         this.executedList.add(transaction);
@@ -66,7 +66,7 @@ public class Client {
 
         this.outstandingCollection.stream()
                 .filter(it -> it.getUniqueId().equals(transaction.getUniqueId()))
-                .findFirst().ifPresent(transaction1 -> outstandingCollection.remove(transaction1));
+                .findFirst().ifPresent(outstandingCollection::remove);
 
         this.balance *= (1.0 + percent / 100.0);
         this.executedList.add(transaction);
